@@ -64,8 +64,6 @@ module.exports.create = function(config, callback) {
 
 function Runner(userConfig, callback) {
 
-  // todo: resolve command-line set configs (only mockMode?)
-
   var configDir = path.resolve(userConfig.appRoot, userConfig.configDir || appPaths.configDir);
 
   this.config = readConfig(path.resolve(configDir, 'default.yaml'));
@@ -87,7 +85,7 @@ function Runner(userConfig, callback) {
     mockMode: userConfig.mockMode,
     controllersDirs: userConfig.controllerDirs || [ this.resolveAppPath(appPaths.controllersDir) ],
     mockControllersDirs: userConfig.mockControllerDirs || [ this.resolveAppPath(appPaths.mockControllersDir) ]
-  });
+  }, readEnvConfig());
 
   debug('swaggerNode config: %j', swaggerNodeConfig);
 
@@ -104,6 +102,7 @@ function Runner(userConfig, callback) {
 }
 
 function readConfig(file) {
+
   try {
     var obj = YAML.load(file);
     if (debug.enabled) { debug('read config file: %s', file); }
@@ -113,4 +112,26 @@ function readConfig(file) {
     if (debug.enabled) { debug('failed attempt to read config: %s', file); }
     return {};
   }
+}
+
+function readEnvConfig() {
+
+    var config = {};
+  _.each(process.env, function(value, key) {
+    var split = key.split('_');
+    if (split[0] === 'swagger') {
+      var configItem = config;
+      for (var i = 1; i < split.length; i++) {
+        var subKey = split[i];
+        if (i < split.length - 1) {
+          if (!configItem[subKey]) { configItem[subKey] = {}; }
+          configItem = configItem[subKey];
+        } else {
+          configItem[subKey] = value;
+        }
+      }
+      debug('loaded env var: %s = %s', split.slice(1).join('.'), value);
+    }
+  });
+  return config;
 }
