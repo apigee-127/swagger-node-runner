@@ -87,8 +87,8 @@ function Runner(userConfig, callback) {
     appRoot: userConfig.appRoot,
     securityHandlers: userConfig.securityHandlers,
     mockMode: userConfig.mockMode,
-    controllersDirs: userConfig.controllerDirs || [ this.resolveAppPath(appPaths.controllersDir) ],
-    mockControllersDirs: userConfig.mockControllerDirs || [ this.resolveAppPath(appPaths.mockControllersDir) ]
+    controllersDirs: userConfig.controllersDirs || [ this.resolveAppPath(appPaths.controllersDir) ],
+    mockControllersDirs: userConfig.mockControllersDirs || [ this.resolveAppPath(appPaths.mockControllersDir) ]
   }, readEnvConfig());
 
   debug('swaggerNode config: %j', swaggerNodeConfig);
