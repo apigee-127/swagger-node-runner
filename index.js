@@ -79,6 +79,10 @@ function Runner(userConfig, callback) {
     return require('./lib/connect_middleware')(this);
   };
 
+  this.expressMiddleware = this.connectMiddleware;
+
+  this.restifyMiddleware = this.connectMiddleware;
+
   _.defaults(swaggerNodeConfig, {
     appRoot: userConfig.appRoot,
     securityHandlers: userConfig.securityHandlers,
