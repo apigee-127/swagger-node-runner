@@ -83,6 +83,10 @@ function Runner(userConfig, callback) {
 
   this.restifyMiddleware = this.connectMiddleware;
 
+  this.sailsMiddleware = this.connectMiddleware;
+
+  this.hapiMiddleware = this.connectMiddleware;
+
   _.defaults(swaggerNodeConfig, {
     appRoot: userConfig.appRoot,
     securityHandlers: userConfig.securityHandlers,
