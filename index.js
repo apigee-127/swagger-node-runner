@@ -85,7 +85,9 @@ function Runner(userConfig, callback) {
 
   this.sailsMiddleware = this.connectMiddleware;
 
-  this.hapiMiddleware = this.connectMiddleware;
+  this.hapiMiddleware = function hapiMiddleware() {
+    return require('./lib/hapi_middleware')(this);
+  };
 
   _.defaults(swaggerNodeConfig, {
     appRoot: userConfig.appRoot,
