@@ -46,12 +46,24 @@ var path = require('path');
 var initSwaggerTools = require('swagger-tools').initializeMiddleware;
 var debug = require('debug')('swagger');
 
+var CONFIG_DEFAULTS = {
+  validateResponse: true
+};
+
 var appPaths = { // relative to appRoot
   configDir: 'config',
   swaggerFile: 'api/swagger/swagger.yaml',
   controllersDir: 'api/controllers',
   mockControllersDir: 'api/mocks'
 };
+
+/*
+SwaggerNode config priority:
+  1. swagger_* environment vars
+  2. config passed to create()
+  3. read from swaggerNode node in default.yaml in config directory
+  4. defaults in this file
+ */
 
 module.exports.create = function(config, callback) {
 
@@ -62,17 +74,10 @@ module.exports.create = function(config, callback) {
   new Runner(config, callback);
 };
 
-function Runner(userConfig, callback) {
-
-  var configDir = path.resolve(userConfig.appRoot, userConfig.configDir || appPaths.configDir);
-
-  this.config = readConfig(path.resolve(configDir, 'default.yaml'));
-  if (!this.config.swaggerNode) { this.config.swaggerNode = {}; }
-
-  var swaggerNodeConfig = this.config.swaggerNode;
+function Runner(appJsConfig, callback) {
 
   this.resolveAppPath = function resolveAppPath(to) {
-    return path.resolve(userConfig.appRoot, to);
+    return path.resolve(appJsConfig.appRoot, to);
   };
 
   this.connectMiddleware = function connectMiddleware() {
@@ -89,15 +94,23 @@ function Runner(userConfig, callback) {
     return require('./lib/hapi_middleware')(this);
   };
 
-  _.defaults(swaggerNodeConfig, {
-    appRoot: userConfig.appRoot,
-    securityHandlers: userConfig.securityHandlers,
-    mockMode: userConfig.mockMode,
-    controllersDirs: userConfig.controllersDirs || [ this.resolveAppPath(appPaths.controllersDir) ],
-    mockControllersDirs: userConfig.mockControllersDirs || [ this.resolveAppPath(appPaths.mockControllersDir) ]
-  }, readEnvConfig());
+  var configDir = path.resolve(appJsConfig.appRoot, appJsConfig.configDir || appPaths.configDir);
+  var fileConfig = readConfigFile(path.resolve(configDir, 'default.yaml'));
 
-  debug('swaggerNode config: %j', swaggerNodeConfig);
+  var envConfig = readEnvConfig();
+
+  var swaggerNodeConfigDefaults = _.extend({}, CONFIG_DEFAULTS, {
+    controllersDirs: [ this.resolveAppPath(appPaths.controllersDir) ],
+    mockControllersDirs: [ this.resolveAppPath(appPaths.mockControllersDir) ]
+  });
+
+  fileConfig.swaggerNode = _.defaults(envConfig,
+                                      appJsConfig,
+                                      fileConfig.swaggerNode || {},
+                                      swaggerNodeConfigDefaults);
+
+  this.config = fileConfig;
+  debug('resolved config: %j', this.config);
 
   if (!this.swagger) {
     this.swagger = YAML.load(this.resolveAppPath(appPaths.swaggerFile));
@@ -108,18 +121,18 @@ function Runner(userConfig, callback) {
     self.swaggerTools = swaggerTools;
     callback(undefined, self);
   });
-
 }
 
-function readConfig(file) {
+function readConfigFile(file) {
 
   try {
     var obj = YAML.load(file);
-    if (debug.enabled) { debug('read config file: %s', file); }
+    debug('read config file: %s', file);
+    debug('config from file: %j', obj);
     return obj;
   }
   catch(err) {
-    if (debug.enabled) { debug('failed attempt to read config: %s', file); }
+    debug('failed attempt to read config: %s', file);
     return {};
   }
 }
@@ -137,11 +150,11 @@ function readEnvConfig() {
           if (!configItem[subKey]) { configItem[subKey] = {}; }
           configItem = configItem[subKey];
         } else {
-          configItem[subKey] = value;
+          configItem[subKey] = JSON.parse(value);
         }
       }
-      debug('loaded env var: %s = %s', split.slice(1).join('.'), value);
     }
   });
+  debug('loaded env vars: %j', config);
   return config;
 }
