@@ -1,6 +1,6 @@
 {
   "name": "swagger-node-runner",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Swagger-node loader and middleware",
   "keywords": [
     "swagger",
