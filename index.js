@@ -86,7 +86,9 @@ function Runner(appJsConfig, callback) {
 
   this.expressMiddleware = this.connectMiddleware;
 
-  this.restifyMiddleware = this.connectMiddleware;
+  this.restifyMiddleware = function restifyMiddleware() {
+    return require('./lib/restify_middleware')(this);
+  };
 
   this.sailsMiddleware = this.connectMiddleware;
 
