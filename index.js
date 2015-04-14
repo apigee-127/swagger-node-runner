@@ -90,7 +90,9 @@ function Runner(appJsConfig, callback) {
     return require('./lib/restify_middleware')(this);
   };
 
-  this.sailsMiddleware = this.connectMiddleware;
+  this.sailsMiddleware = function sailsMiddleware() {
+    return require('./lib/sails_middleware')(this);
+  }
 
   this.hapiMiddleware = function hapiMiddleware() {
     return require('./lib/hapi_middleware')(this);
