@@ -29,7 +29,7 @@
     "connect": ""
   },
   "scripts": {
-    "test": "mocha -u exports -R spec test",
-    "coverage": "istanbul cover _mocha -- -u exports -R spec test"
+    "test": "mocha -u exports -R spec test test/lib",
+    "coverage": "istanbul cover _mocha -- -u exports -R spec test test/lib"
   }
 }

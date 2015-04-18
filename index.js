@@ -65,16 +65,15 @@ SwaggerNode config priority:
   4. defaults in this file
  */
 
-module.exports.create = function(config, callback) {
+module.exports.create = function(config, cb) {
 
-  if (!callback && _.isFunction(config)) { callback = config; config = undefined; }
-  if (!_.isFunction(callback)) { throw new Error('callback is required'); }
-  if (!config.appRoot) { throw new Error('config.appRoot is required'); }
+  if (!config || !config.appRoot) { return cb(new Error('config.appRoot is required')); }
+  if (!_.isFunction(cb)) { return cb(new Error('callback is required')); }
 
-  new Runner(config, callback);
+  new Runner(config, cb);
 };
 
-function Runner(appJsConfig, callback) {
+function Runner(appJsConfig, cb) {
 
   this.resolveAppPath = function resolveAppPath(to) {
     return path.resolve(appJsConfig.appRoot, to);
@@ -105,7 +104,8 @@ function Runner(appJsConfig, callback) {
 
   var swaggerNodeConfigDefaults = _.extend({}, CONFIG_DEFAULTS, {
     controllersDirs: [ this.resolveAppPath(appPaths.controllersDir) ],
-    mockControllersDirs: [ this.resolveAppPath(appPaths.mockControllersDir) ]
+    mockControllersDirs: [ this.resolveAppPath(appPaths.mockControllersDir) ],
+    configDir: configDir
   });
 
   fileConfig.swaggerNode = _.defaults(envConfig,
@@ -116,14 +116,17 @@ function Runner(appJsConfig, callback) {
   this.config = fileConfig;
   debug('resolved config: %j', this.config);
 
-  if (!this.swagger) {
-    this.swagger = YAML.load(this.resolveAppPath(appPaths.swaggerFile));
+  var swaggerFile = this.resolveAppPath(appPaths.swaggerFile);
+  try {
+    this.swagger = YAML.load(swaggerFile);
+  } catch (err) {
+    return cb(err);
   }
 
   var self = this;
   initSwaggerTools(this.swagger, function(swaggerTools) {
     self.swaggerTools = swaggerTools;
-    callback(undefined, self);
+    cb(undefined, self);
   });
 }
 

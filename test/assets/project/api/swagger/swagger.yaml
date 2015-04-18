@@ -1,0 +1,46 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Hello World App
+host: localhost:10010
+basePath: /
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /hello:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+definitions:
+  HelloWorldResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
