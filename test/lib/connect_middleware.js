@@ -27,6 +27,7 @@ var should = require('should');
 var path = require('path');
 var _ = require('lodash');
 var YAML = require('yamljs');
+var util = require('util');
 
 var SwaggerRunner = require('../..');
 
@@ -196,6 +197,31 @@ describe('connect_middleware', function() {
         should.fail; // should never get here
       });
     });
+
+    it('request.get should get a header', function(done) {
+
+      var request = { url: url, headers: { myheader: 'myvalue' } };
+      var response = {};
+
+      should.not.exist(request.get);
+      expressMW(request, response, function() {
+        request.get('myheader').should.eql(request.headers['myheader']);
+        done();
+      });
+    });
+
+    it('request.status should set status', function(done) {
+
+      var request = { url: url };
+      var response = {};
+
+      should.not.exist(response.statusCode);
+      expressMW(request, response, function() {
+        response.status(200);
+        response.statusCode.should.eql(200);
+        done();
+      });
+    });
   });
 
   describe('swaggerDoc', function() {
@@ -205,7 +231,7 @@ describe('connect_middleware', function() {
     before(function() {
       swagger = connectMiddleware.runner.swagger;
       swaggerDocMW = connectMiddleware.swaggerDoc();
-      var filteredSwagger = _.clone(swagger);
+      var filteredSwagger = _.cloneDeep(swagger);
       delete(filteredSwagger.paths['/hello']['x-swagger-router-controller']);
       yaml = YAML.stringify(filteredSwagger, 99, 2);
       json = JSON.stringify(filteredSwagger, null, 2);
@@ -258,6 +284,86 @@ describe('connect_middleware', function() {
 
       swaggerDocMW(request, response, function() {
         should.fail; // should never get here
+      });
+    });
+
+    it('should derive the path as needed', function(done) {
+
+      var request = {
+        url: util.format('http://localhost:10010%s', connectMiddleware.runner.config.swaggerNode.docEndpoints.raw),
+        headers: { accept: 'application/yaml' }
+      };
+      var response = {
+        setHeader: function(name, value) {
+        },
+        end: function(value) {
+          should(yaml == value).be.true;
+          done();
+        }
+      };
+
+      swaggerDocMW(request, response, function() {
+        should.fail; // should never get here
+      });
+    });
+
+    it('should be able to set the filter', function(done) {
+
+      var config = _.clone(DEFAULT_PROJECT_CONFIG);
+      config.docEndpoints = { raw: '/swagger', filter: '.*' };
+      should.exist(swagger.paths['/hello']['x-swagger-router-controller']);
+      var yaml = YAML.stringify(swagger, 99, 2);
+
+      SwaggerRunner.create(config, function(err, runner) {
+        should.not.exist(err);
+
+        var connectMiddleware = runner.connectMiddleware();
+        swaggerDocMW = connectMiddleware.swaggerDoc();
+
+        var request = {
+          path: connectMiddleware.runner.config.swaggerNode.docEndpoints.raw,
+          headers: { accept: 'application/yaml' }
+        };
+        var setHeaderCalled = false;
+        var response = {
+          setHeader: function(name, value) {
+            name.should.eql('Content-Type');
+            value.should.eql('application/yaml');
+            setHeaderCalled = true;
+          },
+          end: function(value) {
+            setHeaderCalled.should.be.true;
+            should(yaml == value).be.true;
+            done();
+          }
+        };
+
+        swaggerDocMW(request, response, function() {
+          should.fail; // should never get here
+        });
+      });
+    });
+
+  });
+
+  describe('helpers', function() {
+
+    var helperMW;
+
+    before(function() {
+      helperMW = connectMiddleware.helpers();
+    });
+
+    it('should add function to get config to request', function(done) {
+
+      var request = {};
+
+      helperMW(request, null, function() {
+        should.exist(request.swaggerNode);
+        should.exist(request.swaggerNode.config);
+        request.swaggerNode.config.should.equal(connectMiddleware.runner.config);
+
+        done();
       });
     });
 
