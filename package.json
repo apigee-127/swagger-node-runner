@@ -24,9 +24,8 @@
     "yamljs": "^0.2.1"
   },
   "devDependencies": {
-    "should": "^5.2.0",
-    "supertest": "",
-    "connect": ""
+    "mocha": "^2.2.1",
+    "should": "^5.2.0"
   },
   "scripts": {
     "test": "mocha -u exports -R spec test test/lib",
