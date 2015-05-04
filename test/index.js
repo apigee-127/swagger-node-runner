@@ -82,7 +82,7 @@ describe('index', function() {
   describe('config', function() {
 
     var DEFAULT_CONFIG = {
-      swaggerNode: {
+      swagger: {
         appRoot: DEFAULT_PROJECT_ROOT,
         validateResponse: true,
         controllersDirs: [path.resolve(DEFAULT_PROJECT_ROOT, 'api/controllers')],
@@ -111,7 +111,7 @@ describe('index', function() {
         should.not.exist(err);
 
         var testConfig = _.cloneDeep(DEFAULT_CONFIG);
-        testConfig.swaggerNode.configDir = configDir;
+        testConfig.swagger.configDir = configDir;
         testConfig.test = true;
 
         runner.config.should.eql(testConfig);
@@ -120,7 +120,7 @@ describe('index', function() {
       });
     });
 
-    it('should load swaggerNode config from env vars', function(done) {
+    it('should load swagger config from env vars', function(done) {
 
       process.env['swagger_test'] = 'true';
       process.env['swagger_test2_test3'] = '2';
@@ -128,8 +128,8 @@ describe('index', function() {
         should.not.exist(err);
 
         var testConfig = _.cloneDeep(DEFAULT_CONFIG);
-        testConfig.swaggerNode.test = true;
-        testConfig.swaggerNode.test2 = {
+        testConfig.swagger.test = true;
+        testConfig.swagger.test2 = {
           test3: 2
         };
 

@@ -1,13 +1,16 @@
 {
   "name": "swagger-node-runner",
-  "version": "0.3.4",
-  "description": "Swagger-node loader and middleware",
+  "version": "0.4.0",
+  "description": "Swagger loader and middleware utilities",
   "keywords": [
     "swagger",
     "api",
     "apis",
-    "connect",
-    "express"
+    "swagger-connect",
+    "swagger-express",
+    "swagger-restify",
+    "swagger-hapi",
+    "swagger-sails"
   ],
   "author": "Scott Ganyo <sganyo@apigee.com>",
   "license": "MIT",

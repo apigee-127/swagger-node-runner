@@ -57,9 +57,9 @@ describe('hapi_middleware', function() {
 
     it('should expose config', function() {
 
-      hapiMiddleware.config.should.be.an.Object;
+      hapiMiddleware.sysConfig.should.be.an.Object;
       _.each(DEFAULT_PROJECT_CONFIG, function(value, key) {
-        hapiMiddleware.config[key].should.eql(value);
+        hapiMiddleware.sysConfig[key].should.eql(value);
       });
     });
 
@@ -76,9 +76,9 @@ describe('hapi_middleware', function() {
       attrs.should.eql(hapiMiddleware.plugin.register.attributes);
     });
 
-    it('should set config to config.swaggerNode', function() {
+    it('should set config to config.swagger', function() {
 
-      hapiMiddleware.config.should.eql(hapiMiddleware.runner.config.swaggerNode);
+      hapiMiddleware.sysConfig.should.eql(hapiMiddleware.runner.config.swagger);
     })
   });
 

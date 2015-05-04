@@ -61,7 +61,7 @@ var appPaths = { // relative to appRoot
 SwaggerNode config priority:
   1. swagger_* environment vars
   2. config passed to create()
-  3. read from swaggerNode node in default.yaml in config directory
+  3. read from swagger node in default.yaml in config directory
   4. defaults in this file
  */
 
@@ -102,16 +102,16 @@ function Runner(appJsConfig, cb) {
 
   var envConfig = readEnvConfig();
 
-  var swaggerNodeConfigDefaults = _.extend({}, CONFIG_DEFAULTS, {
+  var swaggerConfigDefaults = _.extend({}, CONFIG_DEFAULTS, {
     controllersDirs: [ this.resolveAppPath(appPaths.controllersDir) ],
     mockControllersDirs: [ this.resolveAppPath(appPaths.mockControllersDir) ],
     configDir: configDir
   });
 
-  fileConfig.swaggerNode = _.defaults(envConfig,
-                                      appJsConfig,
-                                      fileConfig.swaggerNode || {},
-                                      swaggerNodeConfigDefaults);
+  fileConfig.swagger = _.defaults(envConfig,
+                                  appJsConfig,
+                                  fileConfig.swagger || {},
+                                  swaggerConfigDefaults);
 
   this.config = fileConfig;
   debug('resolved config: %j', this.config);

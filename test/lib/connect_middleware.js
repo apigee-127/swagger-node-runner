@@ -64,9 +64,9 @@ describe('connect_middleware', function() {
 
     it('should expose config', function() {
 
-      connectMiddleware.config.should.be.an.Object;
+      connectMiddleware.sysConfig.should.be.an.Object;
       _.each(DEFAULT_PROJECT_CONFIG, function(value, key) {
-        connectMiddleware.config[key].should.eql(value);
+        connectMiddleware.sysConfig[key].should.eql(value);
       });
     });
 
@@ -86,9 +86,9 @@ describe('connect_middleware', function() {
 
     });
 
-    it('should set config to config.swaggerNode', function() {
+    it('should set config to config.swagger', function() {
 
-     connectMiddleware.config.should.eql(connectMiddleware.runner.config.swaggerNode);
+     connectMiddleware.sysConfig.should.eql(connectMiddleware.runner.config.swagger);
     })
   });
 
@@ -240,7 +240,7 @@ describe('connect_middleware', function() {
     it('should retrieve swagger json', function(done) {
 
       var request = {
-        path: connectMiddleware.runner.config.swaggerNode.docEndpoints.raw,
+        path: connectMiddleware.runner.config.swagger.docEndpoints.raw,
         headers: { }
       };
       var setHeaderCalled = false;
@@ -265,7 +265,7 @@ describe('connect_middleware', function() {
     it('should retrieve swagger yaml', function(done) {
 
       var request = {
-        path: connectMiddleware.runner.config.swaggerNode.docEndpoints.raw,
+        path: connectMiddleware.runner.config.swagger.docEndpoints.raw,
         headers: { accept: 'application/yaml' }
       };
       var setHeaderCalled = false;
@@ -290,7 +290,7 @@ describe('connect_middleware', function() {
     it('should derive the path as needed', function(done) {
 
       var request = {
-        url: util.format('http://localhost:10010%s', connectMiddleware.runner.config.swaggerNode.docEndpoints.raw),
+        url: util.format('http://localhost:10010%s', connectMiddleware.runner.config.swagger.docEndpoints.raw),
         headers: { accept: 'application/yaml' }
       };
       var response = {
@@ -321,7 +321,7 @@ describe('connect_middleware', function() {
         swaggerDocMW = connectMiddleware.swaggerDoc();
 
         var request = {
-          path: connectMiddleware.runner.config.swaggerNode.docEndpoints.raw,
+          path: connectMiddleware.runner.config.swagger.docEndpoints.raw,
           headers: { accept: 'application/yaml' }
         };
         var setHeaderCalled = false;
@@ -359,9 +359,9 @@ describe('connect_middleware', function() {
       var request = {};
 
       helperMW(request, null, function() {
-        should.exist(request.swaggerNode);
-        should.exist(request.swaggerNode.config);
-        request.swaggerNode.config.should.equal(connectMiddleware.runner.config);
+        should.exist(request.swagger);
+        should.exist(request.swagger.config);
+        request.swagger.config.should.equal(connectMiddleware.runner.config);
 
         done();
       });
