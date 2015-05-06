@@ -26,7 +26,7 @@
 var should = require('should');
 var path = require('path');
 var _ = require('lodash');
-var YAML = require('yamljs');
+var YAML = require('js-yaml');
 var util = require('util');
 
 var SwaggerRunner = require('../..');
@@ -233,7 +233,7 @@ describe('connect_middleware', function() {
       swaggerDocMW = connectMiddleware.swaggerDoc();
       var filteredSwagger = _.cloneDeep(swagger);
       delete(filteredSwagger.paths['/hello']['x-swagger-router-controller']);
-      yaml = YAML.stringify(filteredSwagger, 99, 2);
+      yaml = YAML.safeDump(filteredSwagger, { indent: 2 });
       json = JSON.stringify(filteredSwagger, null, 2);
     });
 
@@ -312,7 +312,7 @@ describe('connect_middleware', function() {
       var config = _.clone(DEFAULT_PROJECT_CONFIG);
       config.docEndpoints = { raw: '/swagger', filter: '.*' };
       should.exist(swagger.paths['/hello']['x-swagger-router-controller']);
-      var yaml = YAML.stringify(swagger, 99, 2);
+      var yaml = YAML.safeDump(swagger, { indent: 2 });
 
       SwaggerRunner.create(config, function(err, runner) {
         should.not.exist(err);

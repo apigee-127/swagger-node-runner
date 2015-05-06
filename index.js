@@ -41,7 +41,8 @@ config:
  */
 
 var _ = require('lodash');
-var YAML = require('yamljs');
+var yaml = require('js-yaml');
+var fs = require('fs');
 var path = require('path');
 var initSwaggerTools = require('swagger-tools').initializeMiddleware;
 var debug = require('debug')('swagger');
@@ -118,7 +119,7 @@ function Runner(appJsConfig, cb) {
 
   var swaggerFile = this.resolveAppPath(appPaths.swaggerFile);
   try {
-    this.swagger = YAML.load(swaggerFile);
+    this.swagger = yaml.safeLoad(fs.readFileSync(swaggerFile, 'utf8'));
   } catch (err) {
     return cb(err);
   }
@@ -133,7 +134,7 @@ function Runner(appJsConfig, cb) {
 function readConfigFile(file) {
 
   try {
-    var obj = YAML.load(file);
+    var obj = yaml.safeLoad(fs.readFileSync(file, 'utf8'));
     debug('read config file: %s', file);
     debug('config from file: %j', obj);
     return obj;
