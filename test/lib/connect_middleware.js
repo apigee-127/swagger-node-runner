@@ -126,9 +126,16 @@ describe('connect_middleware', function() {
     it('should emit appropriate json', function(done) {
 
       var err = new Error('this is a test');
+      var headerSet = false;
       var res = {
+        setHeader: function(key, value) {
+          key.should.equal('Content-Type');
+          value.should.equal('application/json');
+          headerSet = true;
+        },
         end: function(json) {
-          json.should.eql(JSON.stringify({ message: err.message }))
+          json.should.eql(JSON.stringify({ message: err.message }));
+          headerSet.should.be.true;
           done();
         }
       };
