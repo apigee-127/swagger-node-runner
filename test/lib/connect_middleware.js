@@ -78,7 +78,7 @@ describe('connect_middleware', function() {
     it('should expose middleware functions', function() {
 
       ['metadata', 'security', 'validator', 'router', 'expressCompatibilityMW',
-        'swaggerDoc', 'helpers', 'cors'].forEach(function(funcName) {
+        'swaggerDoc', 'cors'].forEach(function(funcName) {
           shouldBeConnectMiddleware(connectMiddleware[funcName]());
         });
 
@@ -97,7 +97,7 @@ describe('connect_middleware', function() {
     it('should return a default Array', function() {
 
       connectMiddleware.stack().should.be.an.Array
-      connectMiddleware.stack().length.should.eql(7); // note: includes swaggerDoc MW
+      connectMiddleware.stack().length.should.eql(6); // note: includes swaggerDoc MW
 
       connectMiddleware.stack().forEach(function(ea) {
         shouldBeConnectMiddleware(ea);
@@ -352,28 +352,4 @@ describe('connect_middleware', function() {
     });
 
   });
-
-  describe('helpers', function() {
-
-    var helperMW;
-
-    before(function() {
-      helperMW = connectMiddleware.helpers();
-    });
-
-    it('should add function to get config to request', function(done) {
-
-      var request = {};
-
-      helperMW(request, null, function() {
-        should.exist(request.swagger);
-        should.exist(request.swagger.config);
-        request.swagger.config.should.equal(connectMiddleware.runner.config);
-
-        done();
-      });
-    });
-
-  });
-
 });
