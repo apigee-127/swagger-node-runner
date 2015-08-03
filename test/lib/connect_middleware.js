@@ -35,14 +35,15 @@ var DEFAULT_PROJECT_ROOT = path.resolve(__dirname, '..', 'assets', 'project');
 var DEFAULT_PROJECT_CONFIG = {
   appRoot: DEFAULT_PROJECT_ROOT,
   controllersDirs: [],
-  docEndpoints: { raw: '/swagger' }
+  docEndpoints: { raw: '/swagger' },
+  mapErrorsToJson: true
 };
 
 describe('connect_middleware', function() {
 
   function shouldBeConnectMiddleware(middleware) {
     middleware.should.be.a.Function;
-    middleware.length.should.eql(3);
+    middleware.length.should.be.within(3, 4);
   }
 
   var connectMiddleware, createdRunner;
@@ -94,12 +95,35 @@ describe('connect_middleware', function() {
 
   describe('stack', function() {
 
-    it('should return a default Array', function() {
+    it('should return a Array w/ error handler by default', function() {
 
-      connectMiddleware.stack().should.be.an.Array
-      connectMiddleware.stack().length.should.eql(6); // note: includes swaggerDoc MW
+      var stack = connectMiddleware.stack();
+      stack.should.be.an.Array
+      stack.length.should.eql(7); // note: includes swaggerDoc MW
 
-      connectMiddleware.stack().forEach(function(ea) {
+      stack.forEach(function(ea) {
+        shouldBeConnectMiddleware(ea);
+      });
+    });
+
+    it('should return a error handler if explicitly requested', function() {
+
+      var stack = connectMiddleware.stack(true);
+      stack.should.be.an.Array
+      stack.length.should.eql(7); // note: includes swaggerDoc MW
+
+      stack.forEach(function(ea) {
+        shouldBeConnectMiddleware(ea);
+      });
+    });
+
+    it('should not return a error handler if explicitly excluded', function() {
+
+      var stack = connectMiddleware.stack(false);
+      stack.should.be.an.Array
+      stack.length.should.eql(6); // note: includes swaggerDoc MW
+
+      stack.forEach(function(ea) {
         shouldBeConnectMiddleware(ea);
       });
     });
