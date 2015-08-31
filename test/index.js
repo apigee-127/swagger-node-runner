@@ -67,18 +67,6 @@ describe('index', function() {
     });
   });
 
-  //it('should expose expected properties', function(done) {
-  //
-  //  SwaggerRunner.create(DEFAULT_PROJECT_CONFIG, function(err, runner) {
-  //    should.not.exist(err);
-  //    should.exist(runner);
-  //
-  //    runner.should.have.properties('resolveAppPath', 'connectMiddleware', 'expressMiddleware', 'restifyMiddleware',
-  //                                  'sailsMiddleware', 'hapiMiddleware', 'config', 'swagger', 'swaggerTools');
-  //    done();
-  //  });
-  //});
-  //
   describe('config', function() {
 
     var DEFAULT_CONFIG = {
