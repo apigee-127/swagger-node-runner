@@ -166,13 +166,15 @@ function Runner(appJsConfig, cb) {
 
   // todo: can we load swagger & swagger tools via a configured pipe?
 
-  var swaggerFile = this.resolveAppPath(appPaths.swaggerFile);
+  try {
+    var swaggerFile = this.resolveAppPath(appPaths.swaggerFile);
+    var swaggerString = fs.readFileSync(swaggerFile, 'utf8');
+    this.swagger = yaml.safeLoad(swaggerString);
+  } catch (err) {
+    return cb(err);
+  }
 
-  var swaggerString = fs.readFileSync(swaggerFile, 'utf8');
   var self = this;
-
-  self.swagger = yaml.safeLoad(swaggerString);
-
   initSwaggerTools(self.swagger, function(swaggerTools) {
     self.swaggerTools = swaggerTools; // note: must be assigned before create for swagger fittings to reference
     self.swaggerSecurityHandlers = appJsConfig.swaggerSecurityHandlers;
@@ -202,8 +204,8 @@ function createPipes(self) {
       _router: {
         name: 'swagger_router',
         mockMode: false,
-        mockControllersDirs: 'api/mocks',
-        controllersDirs: 'api/controllers'
+        mockControllersDirs: [ 'api/mocks' ],
+        controllersDirs: [ 'api/controllers' ]
       },
       _swagger_validate: {
         name: 'swagger_validator',
@@ -241,7 +243,7 @@ function readConfigFile(file) {
     return obj;
   }
   catch(err) {
-    debug('failed attempt to read config: %s:', file, err.stack);
+    debug('failed attempt to read config: %s:', file);
     return {};
   }
 }
