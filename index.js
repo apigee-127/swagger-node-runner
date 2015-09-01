@@ -188,7 +188,7 @@ function createPipes(self) {
 
   var projFittingsDir = path.resolve(config.appRoot, config.fittingsDir || DEFAULT_FITTINGS_DIR);
   var swaggerFittingsDir = path.resolve(__dirname, './fittings');
-  var fittingsDirs = [projFittingsDir, swaggerFittingsDir];
+  var fittingsDirs = [ projFittingsDir, swaggerFittingsDir ];
 
   var projViewsDirs = [ path.resolve(config.appRoot, config.viewsDir || DEFAULT_VIEWS_DIR) ];
 
@@ -196,7 +196,7 @@ function createPipes(self) {
   // todo: move this default pipes config to a yaml file?
   if (!config.pipes && !config.swaggerControllerPipe) {
 
-    debug('No pipes defined in config. Using default setup.');
+    debug('**** No pipes defined in config. Using default setup. ****');
 
     config.swaggerControllerPipe = 'swagger_controllers';
 
@@ -243,7 +243,7 @@ function readConfigFile(file) {
     return obj;
   }
   catch(err) {
-    debug('failed attempt to read config: %s:', file);
+    debug('failed attempt to read config: %s:', file, err.stack);
     return {};
   }
 }

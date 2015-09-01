@@ -2,8 +2,12 @@
 
 var debug = require('debug')('pipes:fittings');
 var path = require('path');
+var assert = require('assert');
 
 module.exports = function create(fittingDef, pipes) {
+
+  assert(Array.isArray(fittingDef.controllersDirs), 'controllersDirs must be an array');
+  assert(Array.isArray(fittingDef.mockControllersDirs), 'mockControllersDirs must be an array');
 
   var controllers = fittingDef.mockMode ? fittingDef.mockControllersDirs : fittingDef.controllersDirs;
 
