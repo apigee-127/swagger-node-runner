@@ -2,11 +2,11 @@
 
 var debug = require('debug')('pipes:fittings');
 
-module.exports = function create(fittingDef, pipes) {
+module.exports = function create(fittingDef, bagpipes) {
 
   debug('swagger security config: %j', fittingDef);
 
-  var swaggerNodeRunner = pipes.config.swaggerNodeRunner;
+  var swaggerNodeRunner = bagpipes.config.swaggerNodeRunner;
   var middleware = swaggerNodeRunner.swaggerTools.swaggerSecurity(swaggerNodeRunner.swaggerSecurityHandlers);
 
   return function swagger_security(context, cb) {

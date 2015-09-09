@@ -39,7 +39,8 @@ var appPaths = { // relative to appRoot
   configDir: 'config',
   swaggerFile: 'api/swagger/swagger.yaml',
   controllersDir: 'api/controllers',
-  mockControllersDir: 'api/mocks'
+  mockControllersDir: 'api/mocks',
+  helpers: 'api/helpers'
 };
 
 /*
@@ -164,14 +165,16 @@ function Runner(appJsConfig, cb) {
   this.config = fileConfig;
   debug('resolved config: %j', this.config);
 
-  // todo: can we load swagger & swagger tools via a configured pipe?
-
-  try {
-    var swaggerFile = this.resolveAppPath(appPaths.swaggerFile);
-    var swaggerString = fs.readFileSync(swaggerFile, 'utf8');
-    this.swagger = yaml.safeLoad(swaggerString);
-  } catch (err) {
-    return cb(err);
+  if (_.isObject(appJsConfig.swagger)) { // allow direct setting of swagger
+    this.swagger = appJsConfig.swagger;
+  } else {
+    try {
+      var swaggerFile = appJsConfig.swaggerFile || this.resolveAppPath(appPaths.swaggerFile);
+      var swaggerString = fs.readFileSync(swaggerFile, 'utf8');
+      this.swagger = yaml.safeLoad(swaggerString);
+    } catch (err) {
+      return cb(err);
+    }
   }
 
   var self = this;
