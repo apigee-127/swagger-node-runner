@@ -28,8 +28,8 @@ var bagpipes = require('bagpipes');
 var SWAGGER_SELECTED_PIPE = 'x-swagger-pipe';
 var SWAGGER_ROUTER_CONTROLLER = 'x-swagger-router-controller';
 
-var DEFAULT_FITTINGS_DIR = 'api/fittings';
-var DEFAULT_VIEWS_DIR = 'api/views';
+var DEFAULT_FITTINGS_DIRS = [ 'api/fittings' ];
+var DEFAULT_VIEWS_DIRS = [ 'api/views' ];
 
 var CONFIG_DEFAULTS = {
   validateResponse: true
@@ -189,11 +189,15 @@ function Runner(appJsConfig, cb) {
 function createPipes(self) {
   var config = self.config.swagger;
 
-  var projFittingsDir = path.resolve(config.appRoot, config.fittingsDir || DEFAULT_FITTINGS_DIR);
-  var swaggerFittingsDir = path.resolve(__dirname, './fittings');
-  var fittingsDirs = [ projFittingsDir, swaggerFittingsDir ];
+  var fittingsDirs = (config.fittingsDirs || DEFAULT_FITTINGS_DIRS).map(function(dir) {
+    return path.resolve(config.appRoot, dir);
+  });
+  var swaggerNodeFittingsDir = path.resolve(__dirname, './fittings');
+  fittingsDirs.push(swaggerNodeFittingsDir);
 
-  var projViewsDirs = [ path.resolve(config.appRoot, config.viewsDir || DEFAULT_VIEWS_DIR) ];
+  var viewsDirs = (config.viewsDirs || DEFAULT_VIEWS_DIRS).map(function(dir) {
+    return path.resolve(config.appRoot, dir);
+  });
 
   // legacy support: set up a default piping for traditional swagger-node if nothing is specified
   if (!config.bagpipes) {
@@ -234,9 +238,9 @@ function createPipes(self) {
   var pipesDefs = config.bagpipes;
 
   var pipesConfig = {
-    userControllersDirs: config.controllersDirs,
+    connectMiddlewareDirs: config.controllersDirs,
     userFittingsDirs: fittingsDirs,
-    userViewsDirs: projViewsDirs,
+    userViewsDirs: viewsDirs,
     swaggerNodeRunner: self
   };
   return bagpipes.create(pipesDefs, pipesConfig);
