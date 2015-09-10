@@ -17,6 +17,9 @@ module.exports = function create(fittingDef) {
       context.headers['Content-Type'] = 'application/json';
       context.statusCode = context.statusCode || 500;
       Object.defineProperty(err, 'message', { enumerable: true }); // include message property in response
+      if (context.statusCode === 500) {
+        console.error(err.stack);
+      }
       next(null, JSON.stringify(err));
     } catch (err2) {
       debug('jsonErrorHandler unable to stringify error: %j', err);
