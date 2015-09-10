@@ -63,7 +63,7 @@ describe('index', function() {
 
         // todo: fix these tests
         delete(runner.config.swagger.swaggerControllerPipe);
-        delete(runner.config.swagger.pipes);
+        delete(runner.config.swagger.bagpipes);
         runner.config.swagger.should.eql(DEFAULT_CONFIG.swagger);
 
         done();
@@ -84,7 +84,7 @@ describe('index', function() {
 
         // todo: fix these tests
         delete(runner.config.swagger.swaggerControllerPipe);
-        delete(runner.config.swagger.pipes);
+        delete(runner.config.swagger.bagpipes);
         runner.config.swagger.should.eql(testConfig.swagger);
 
         done();
@@ -106,7 +106,7 @@ describe('index', function() {
 
         // todo: fix these tests
         delete(runner.config.swagger.swaggerControllerPipe);
-        delete(runner.config.swagger.pipes);
+        delete(runner.config.swagger.bagpipes);
         runner.config.swagger.should.eql(testConfig.swagger);
 
         delete(process.env['swagger_test']);

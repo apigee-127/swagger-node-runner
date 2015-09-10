@@ -1,11 +1,11 @@
 var should = require('should');
-var swagger_docs = require('../../fittings/swagger_docs');
+var swagger_raw = require('../../fittings/swagger_raw');
 var fs = require('fs');
 var YAML = require('js-yaml');
 var path = require('path');
 var _ = require('lodash');
 
-describe('swaggerDoc', function() {
+describe('swagger_raw', function() {
 
   var swagger, yaml, json, swaggerDoc;
 
@@ -14,7 +14,7 @@ describe('swaggerDoc', function() {
     swagger = YAML.safeLoad(data);
 
     var bagpipes = { config: { swaggerNodeRunner: { swagger: swagger }}};
-    swaggerDoc = swagger_docs({}, bagpipes);
+    swaggerDoc = swagger_raw({}, bagpipes);
 
     var filteredSwagger = _.cloneDeep(swagger);
     delete(filteredSwagger.paths['/hello']['x-swagger-router-controller']);
@@ -70,7 +70,7 @@ describe('swaggerDoc', function() {
     };
 
     var bagpipes = { config: { swaggerNodeRunner: { swagger: swagger }}};
-    var swaggerDoc = swagger_docs(config, bagpipes);
+    var swaggerDoc = swagger_raw(config, bagpipes);
 
     swaggerDoc(context, function(err, output) {
       should.not.exist(err);

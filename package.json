@@ -32,7 +32,7 @@
     "should": "^7.1.0"
   },
   "scripts": {
-    "test": "mocha -u exports -R spec test test/lib",
+    "test": "mocha -u exports -R spec test test/lib test/fittings",
     "coverage": "istanbul cover _mocha -- -u exports -R spec test test/lib"
   }
 }
