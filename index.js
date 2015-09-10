@@ -195,15 +195,14 @@ function createPipes(self) {
 
   var projViewsDirs = [ path.resolve(config.appRoot, config.viewsDir || DEFAULT_VIEWS_DIR) ];
 
-  // set up a default piping for traditional swagger-node if nothing is specified
-  // todo: move this default pipes config to a yaml file?
-  if (!config.pipes && !config.swaggerControllerPipe) {
+  // legacy support: set up a default piping for traditional swagger-node if nothing is specified
+  if (!config.bagpipes) {
 
-    debug('**** No pipes defined in config. Using default setup. ****');
+    debug('**** No bagpipes defined in config. Using default setup. ****');
 
     config.swaggerControllerPipe = 'swagger_controllers';
 
-    config.pipes = {
+    config.bagpipes = {
       _router: {
         name: 'swagger_router',
         mockMode: false,
@@ -215,17 +214,24 @@ function createPipes(self) {
         validateReponse: true
       },
       swagger_controllers: [
-        { onError: 'json_error_handler' },
         'cors',
         'swagger_security',
         '_swagger_validate',
         'express_compatibility',
         '_router'
       ]
+    };
+
+    // todo: support this legacy config? how?
+    // docEndpoints:
+    //   raw: /swagger
+
+    if (config.mapErrorsToJson) {
+      config.bagpipes.swagger_controllers.unshift({ onError: 'json_error_handler' });
     }
   }
 
-  var pipesDefs = config.pipes;
+  var pipesDefs = config.bagpipes;
 
   var pipesConfig = {
     userControllersDirs: config.controllersDirs,

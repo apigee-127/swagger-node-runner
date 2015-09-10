@@ -20,7 +20,7 @@ module.exports = function create(fittingDef, bagpipes) {
   var yaml = YAML.safeDump(filteredSwagger, { indent: 2 });
   var json = JSON.stringify(filteredSwagger, null, 2);
 
-  return function swagger_docs(context, next) {
+  return function swagger_raw(context, next) {
 
     var req = context.request;
 
