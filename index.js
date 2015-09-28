@@ -31,12 +31,7 @@ var SWAGGER_ROUTER_CONTROLLER = 'x-swagger-router-controller';
 var DEFAULT_FITTINGS_DIRS = [ 'api/fittings' ];
 var DEFAULT_VIEWS_DIRS = [ 'api/views' ];
 
-var CONFIG_DEFAULTS = {
-  validateResponse: true
-};
-
 var appPaths = { // relative to appRoot
-  configDir: 'config',
   swaggerFile: 'api/swagger/swagger.yaml',
   controllersDir: 'api/controllers',
   mockControllersDir: 'api/mocks',
@@ -145,24 +140,23 @@ function Runner(appJsConfig, cb) {
     return pipe;
   };
 
-  var configDir = path.resolve(appJsConfig.appRoot, appJsConfig.configDir || appPaths.configDir);
-  var configFile = path.resolve(configDir, 'default.yaml');
-  var fileConfig = readConfigFile(configFile);
+  // don't override if env var already set
+  if (appJsConfig.configDir && !process.env.NODE_CONFIG_DIR) {
+    process.env.NODE_CONFIG_DIR = path.resolve(appJsConfig.appRoot, appJsConfig.configDir);
+  }
+  var config = require('config');
 
-  var envConfig = readEnvConfig();
-
-  var swaggerConfigDefaults = _.extend({}, CONFIG_DEFAULTS, {
+  var swaggerConfigDefaults = {
+    validateResponse: true,
     controllersDirs: [ this.resolveAppPath(appPaths.controllersDir) ],
-    mockControllersDirs: [ this.resolveAppPath(appPaths.mockControllersDir) ],
-    configDir: configDir
-  });
+    mockControllersDirs: [ this.resolveAppPath(appPaths.mockControllersDir) ]
+  };
 
-  fileConfig.swagger = _.defaults(envConfig,
-                                  appJsConfig,
-                                  fileConfig.swagger || {},
-                                  swaggerConfigDefaults);
+  config.swagger = _.defaults(appJsConfig,
+                              config.swagger || {},
+                              swaggerConfigDefaults);
 
-  this.config = fileConfig;
+  this.config = config;
   debug('resolved config: %j', this.config);
 
   if (_.isObject(appJsConfig.swagger)) { // allow direct setting of swagger
@@ -244,41 +238,4 @@ function createPipes(self) {
     swaggerNodeRunner: self
   };
   return bagpipes.create(pipesDefs, pipesConfig);
-}
-
-function readConfigFile(file) {
-
-  try {
-    var data = fs.readFileSync(file, 'utf8');
-    var obj = yaml.safeLoad(data);
-    debug('read config file: %s', file);
-    debug('config from file: %j', obj);
-    return obj;
-  }
-  catch(err) {
-    debug('failed attempt to read config: %s:', file, err.stack);
-    return {};
-  }
-}
-
-function readEnvConfig() {
-
-    var config = {};
-  _.each(process.env, function(value, key) {
-    var split = key.split('_');
-    if (split[0] === 'swagger') {
-      var configItem = config;
-      for (var i = 1; i < split.length; i++) {
-        var subKey = split[i];
-        if (i < split.length - 1) {
-          if (!configItem[subKey]) { configItem[subKey] = {}; }
-          configItem = configItem[subKey];
-        } else {
-          configItem[subKey] = JSON.parse(value);
-        }
-      }
-    }
-  });
-  debug('loaded env vars: %j', config);
-  return config;
 }

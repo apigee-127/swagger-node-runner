@@ -32,16 +32,6 @@ describe('index', function() {
         done();
       });
     });
-
-    it('should fail with bad appRoot', function(done) {
-
-      var config = { appRoot: 'asdf' };
-      SwaggerRunner.create(config, function(err, runner) {
-        should.exist(err);
-        err.code.should.eql('ENOENT');
-        done();
-      });
-    });
   });
 
   describe('config', function() {
@@ -51,8 +41,7 @@ describe('index', function() {
         appRoot: DEFAULT_PROJECT_ROOT,
         validateResponse: true,
         controllersDirs: [path.resolve(DEFAULT_PROJECT_ROOT, 'api/controllers')],
-        mockControllersDirs: [path.resolve(DEFAULT_PROJECT_ROOT, 'api/mocks')],
-        configDir: path.resolve(DEFAULT_PROJECT_ROOT, 'config')
+        mockControllersDirs: [path.resolve(DEFAULT_PROJECT_ROOT, 'api/mocks')]
       }
     };
 
@@ -61,56 +50,11 @@ describe('index', function() {
       SwaggerRunner.create(DEFAULT_PROJECT_CONFIG, function(err, runner) {
         should.not.exist(err);
 
-        // todo: fix these tests
-        delete(runner.config.swagger.swaggerControllerPipe);
-        delete(runner.config.swagger.bagpipes);
-        runner.config.swagger.should.eql(DEFAULT_CONFIG.swagger);
+        var swagger = _.clone(runner.config.swagger);
+        delete(swagger.swaggerControllerPipe);
+        delete(swagger.bagpipes);
+        swagger.should.eql(DEFAULT_CONFIG.swagger);
 
-        done();
-      });
-    });
-
-    it('should load a specified config dir', function(done) {
-
-      var configDir = path.resolve(__dirname, 'assets/config');
-      var config = _.cloneDeep(DEFAULT_PROJECT_CONFIG);
-      config.configDir = configDir;
-      SwaggerRunner.create(config, function(err, runner) {
-        should.not.exist(err);
-
-        var testConfig = _.cloneDeep(DEFAULT_CONFIG);
-        testConfig.swagger.configDir = configDir;
-        testConfig.test = true;
-
-        // todo: fix these tests
-        delete(runner.config.swagger.swaggerControllerPipe);
-        delete(runner.config.swagger.bagpipes);
-        runner.config.swagger.should.eql(testConfig.swagger);
-
-        done();
-      });
-    });
-
-    it('should load swagger config from env vars', function(done) {
-
-      process.env['swagger_test'] = 'true';
-      process.env['swagger_test2_test3'] = '2';
-      SwaggerRunner.create(DEFAULT_PROJECT_CONFIG, function(err, runner) {
-        should.not.exist(err);
-
-        var testConfig = _.cloneDeep(DEFAULT_CONFIG);
-        testConfig.swagger.test = true;
-        testConfig.swagger.test2 = {
-          test3: 2
-        };
-
-        // todo: fix these tests
-        delete(runner.config.swagger.swaggerControllerPipe);
-        delete(runner.config.swagger.bagpipes);
-        runner.config.swagger.should.eql(testConfig.swagger);
-
-        delete(process.env['swagger_test']);
-        delete(process.env['swagger_test2_test3']);
         done();
       });
     });
