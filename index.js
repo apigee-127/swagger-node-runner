@@ -1,26 +1,3 @@
-/****************************************************************************
- The MIT License (MIT)
-
- Copyright (c) 2015 Apigee Corporation
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- ****************************************************************************/
 'use strict';
 
 /*
@@ -45,17 +22,20 @@ var yaml = require('js-yaml');
 var fs = require('fs');
 var path = require('path');
 var initSwaggerTools = require('swagger-tools').initializeMiddleware;
-var debug = require('debug')('swagger');
+var debug = require('debug')('pipe');
+var bagpipes = require('bagpipes');
 
-var CONFIG_DEFAULTS = {
-  validateResponse: true
-};
+var SWAGGER_SELECTED_PIPE = 'x-swagger-pipe';
+var SWAGGER_ROUTER_CONTROLLER = 'x-swagger-router-controller';
+
+var DEFAULT_FITTINGS_DIRS = [ 'api/fittings' ];
+var DEFAULT_VIEWS_DIRS = [ 'api/views' ];
 
 var appPaths = { // relative to appRoot
-  configDir: 'config',
   swaggerFile: 'api/swagger/swagger.yaml',
   controllersDir: 'api/controllers',
-  mockControllersDir: 'api/mocks'
+  mockControllersDir: 'api/mocks',
+  helpers: 'api/helpers'
 };
 
 /*
@@ -98,71 +78,164 @@ function Runner(appJsConfig, cb) {
     return require('./lib/hapi_middleware')(this);
   };
 
-  var configDir = path.resolve(appJsConfig.appRoot, appJsConfig.configDir || appPaths.configDir);
-  var fileConfig = readConfigFile(path.resolve(configDir, 'default.yaml'));
+  this.defaultErrorHandler = function() {
 
-  var envConfig = readEnvConfig();
+    return this.bagpipes.createPipeFromFitting(defaultErrorFitting, { name: 'defaultErrorHandler' });
 
-  var swaggerConfigDefaults = _.extend({}, CONFIG_DEFAULTS, {
+    function defaultErrorFitting(context, next) {
+
+      debug('default error handler: %s', context.error.message);
+      context.statusCode = 500;
+      next(null, context.error.message);
+    }
+  };
+
+  this.getPipe = function(req) {
+
+    if (!(req.swagger && req.swagger.path)) {
+      debug('no swagger path');
+      return null;
+    }
+
+    var path = req.swagger.path;
+    var operation = req.swagger.operation;
+
+    var config = self.config.swagger;
+
+    // prefer explicit pipe
+    var pipeName;
+    if (operation) {
+      pipeName = operation[SWAGGER_SELECTED_PIPE];
+    }
+    if (!pipeName) {
+      pipeName = path[SWAGGER_SELECTED_PIPE];
+    }
+
+    // no explicit pipe, but there's a controller
+    if (!pipeName) {
+      if ((operation && operation[SWAGGER_ROUTER_CONTROLLER]) || path[SWAGGER_ROUTER_CONTROLLER])
+      {
+        pipeName = config.swaggerControllerPipe;
+      }
+    }
+    debug('pipe requested:', pipeName);
+
+    // default pipe
+    if (!pipeName) { pipeName = config.defaultPipe; }
+
+    if (!pipeName) {
+      debug('no default pipe');
+      return null;
+    }
+
+    var pipe = this.bagpipes.pipes[pipeName];
+
+    if (!pipe) {
+      debug('no defined pipe: ', pipeName);
+      return null;
+    }
+
+    debug('executing pipe %s', pipeName);
+
+    return pipe;
+  };
+
+  // don't override if env var already set
+  if (appJsConfig.configDir && !process.env.NODE_CONFIG_DIR) {
+    process.env.NODE_CONFIG_DIR = path.resolve(appJsConfig.appRoot, appJsConfig.configDir);
+  }
+  var config = require('config');
+
+  var swaggerConfigDefaults = {
+    validateResponse: true,
     controllersDirs: [ this.resolveAppPath(appPaths.controllersDir) ],
-    mockControllersDirs: [ this.resolveAppPath(appPaths.mockControllersDir) ],
-    configDir: configDir
-  });
+    mockControllersDirs: [ this.resolveAppPath(appPaths.mockControllersDir) ]
+  };
 
-  fileConfig.swagger = _.defaults(envConfig,
-                                  appJsConfig,
-                                  fileConfig.swagger || {},
-                                  swaggerConfigDefaults);
+  config.swagger = _.defaults(appJsConfig,
+                              config.swagger || {},
+                              swaggerConfigDefaults);
 
-  this.config = fileConfig;
+  this.config = config;
   debug('resolved config: %j', this.config);
 
-  var swaggerFile = this.resolveAppPath(appPaths.swaggerFile);
-  try {
-    this.swagger = yaml.safeLoad(fs.readFileSync(swaggerFile, 'utf8'));
-  } catch (err) {
-    return cb(err);
+  if (_.isObject(appJsConfig.swagger)) { // allow direct setting of swagger
+    this.swagger = appJsConfig.swagger;
+  } else {
+    try {
+      var swaggerFile = appJsConfig.swaggerFile || this.resolveAppPath(appPaths.swaggerFile);
+      var swaggerString = fs.readFileSync(swaggerFile, 'utf8');
+      this.swagger = yaml.safeLoad(swaggerString);
+    } catch (err) {
+      return cb(err);
+    }
   }
 
   var self = this;
-  initSwaggerTools(this.swagger, function(swaggerTools) {
-    self.swaggerTools = swaggerTools;
-    cb(undefined, self);
+  initSwaggerTools(self.swagger, function(swaggerTools) {
+    self.swaggerTools = swaggerTools; // note: must be assigned before create for swagger fittings to reference
+    self.swaggerSecurityHandlers = appJsConfig.swaggerSecurityHandlers;
+    self.bagpipes = createPipes(self);
+    cb(null, self);
   });
 }
 
-function readConfigFile(file) {
+function createPipes(self) {
+  var config = self.config.swagger;
 
-  try {
-    var obj = yaml.safeLoad(fs.readFileSync(file, 'utf8'));
-    debug('read config file: %s', file);
-    debug('config from file: %j', obj);
-    return obj;
-  }
-  catch(err) {
-    debug('failed attempt to read config: %s', file);
-    return {};
-  }
-}
+  var fittingsDirs = (config.fittingsDirs || DEFAULT_FITTINGS_DIRS).map(function(dir) {
+    return path.resolve(config.appRoot, dir);
+  });
+  var swaggerNodeFittingsDir = path.resolve(__dirname, './fittings');
+  fittingsDirs.push(swaggerNodeFittingsDir);
 
-function readEnvConfig() {
+  var viewsDirs = (config.viewsDirs || DEFAULT_VIEWS_DIRS).map(function(dir) {
+    return path.resolve(config.appRoot, dir);
+  });
 
-    var config = {};
-  _.each(process.env, function(value, key) {
-    var split = key.split('_');
-    if (split[0] === 'swagger') {
-      var configItem = config;
-      for (var i = 1; i < split.length; i++) {
-        var subKey = split[i];
-        if (i < split.length - 1) {
-          if (!configItem[subKey]) { configItem[subKey] = {}; }
-          configItem = configItem[subKey];
-        } else {
-          configItem[subKey] = JSON.parse(value);
-        }
-      }
+  // legacy support: set up a default piping for traditional swagger-node if nothing is specified
+  if (!config.bagpipes) {
+
+    debug('**** No bagpipes defined in config. Using default setup. ****');
+
+    config.swaggerControllerPipe = 'swagger_controllers';
+
+    config.bagpipes = {
+      _router: {
+        name: 'swagger_router',
+        mockMode: false,
+        mockControllersDirs: [ 'api/mocks' ],
+        controllersDirs: [ 'api/controllers' ]
+      },
+      _swagger_validate: {
+        name: 'swagger_validator',
+        validateReponse: true
+      },
+      swagger_controllers: [
+        'cors',
+        'swagger_security',
+        '_swagger_validate',
+        'express_compatibility',
+        '_router'
+      ]
+    };
+
+    // todo: support this legacy config? how?
+    // docEndpoints:
+    //   raw: /swagger
+
+    if (config.mapErrorsToJson) {
+      config.bagpipes.swagger_controllers.unshift({ onError: 'json_error_handler' });
     }
-  });
-  debug('loaded env vars: %j', config);
-  return config;
+  }
+
+  var pipesDefs = config.bagpipes;
+
+  var pipesConfig = {
+    connectMiddlewareDirs: config.controllersDirs,
+    userFittingsDirs: fittingsDirs,
+    userViewsDirs: viewsDirs,
+    swaggerNodeRunner: self
+  };
+  return bagpipes.create(pipesDefs, pipesConfig);
 }
