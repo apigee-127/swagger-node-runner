@@ -85,8 +85,7 @@ function Runner(appJsConfig, cb) {
     function defaultErrorFitting(context, next) {
 
       debug('default error handler: %s', context.error.message);
-      context.statusCode = 500;
-      next(null, context.error.message);
+      next();
     }
   };
 
