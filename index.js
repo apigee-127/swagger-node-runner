@@ -151,7 +151,8 @@ function Runner(appJsConfig, cb) {
     mockControllersDirs: [ this.resolveAppPath(appPaths.mockControllersDir) ]
   };
 
-  config.swagger = _.defaults(appJsConfig,
+  config.swagger = _.defaults(readEnvConfig(),
+                              appJsConfig,
                               config.swagger || {},
                               swaggerConfigDefaults);
 
@@ -237,4 +238,26 @@ function createPipes(self) {
     swaggerNodeRunner: self
   };
   return bagpipes.create(pipesDefs, pipesConfig);
+}
+
+function readEnvConfig() {
+
+  var config = {};
+  _.each(process.env, function(value, key) {
+    var split = key.split('_');
+    if (split[0] === 'swagger') {
+      var configItem = config;
+      for (var i = 1; i < split.length; i++) {
+        var subKey = split[i];
+        if (i < split.length - 1) {
+          if (!configItem[subKey]) { configItem[subKey] = {}; }
+          configItem = configItem[subKey];
+        } else {
+          configItem[subKey] = JSON.parse(value);
+        }
+      }
+    }
+  });
+  debug('loaded env vars: %j', config);
+  return config;
 }

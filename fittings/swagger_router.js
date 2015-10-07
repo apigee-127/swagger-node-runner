@@ -9,17 +9,19 @@ module.exports = function create(fittingDef, pipes) {
   assert(Array.isArray(fittingDef.controllersDirs), 'controllersDirs must be an array');
   assert(Array.isArray(fittingDef.mockControllersDirs), 'mockControllersDirs must be an array');
 
-  var controllers = fittingDef.mockMode ? fittingDef.mockControllersDirs : fittingDef.controllersDirs;
-
   var swaggerNodeRunner = pipes.config.swaggerNodeRunner;
   var appRoot = swaggerNodeRunner.config.swagger.appRoot;
+
+  var mockMode = !!fittingDef.mockMode || !!swaggerNodeRunner.config.swagger.mockMode;
+
+  var controllers = mockMode ? fittingDef.mockControllersDirs : fittingDef.controllersDirs;
 
   controllers = controllers.map(function(dir) {
     return path.resolve(appRoot, dir);
   });
 
   var routerConfig = {
-    useStubs: !!fittingDef.mockMode,
+    useStubs: mockMode,
     controllers: controllers
   };
   debug('swaggerTools router config: %j', routerConfig);
