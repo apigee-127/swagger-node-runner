@@ -1,5 +1,6 @@
 var should = require('should');
 var json_error_handler = require('../../fittings/json_error_handler');
+var _ = require('lodash');
 
 describe('json_error_handler', function() {
 
@@ -8,7 +9,7 @@ describe('json_error_handler', function() {
   describe('error in context', function() {
 
     var context;
-    before(function() {
+    beforeEach(function() {
       context = {
         headers: {},
         error: new Error('this is a test')
@@ -35,9 +36,14 @@ describe('json_error_handler', function() {
 
     it('should emit appropriate json', function(done) {
 
+      var err = new Error('this is a test');
+      Object.defineProperty(err, 'message', { enumerable: true });
+      var errorString = JSON.stringify(err);
+
       jsonErrorHandler(context, function(err, output) {
         should.not.exist(err);
-        JSON.stringify(context.error).should.eql(output);
+        should.not.exist(context.error);
+        errorString.should.eql(output);
         done();
       });
     });
