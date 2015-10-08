@@ -20,6 +20,7 @@ module.exports = function create(fittingDef) {
       if (context.statusCode === 500) {
         console.error(err.stack);
       }
+      delete(context.error);
       next(null, JSON.stringify(err));
     } catch (err2) {
       debug('jsonErrorHandler unable to stringify error: %j', err);
