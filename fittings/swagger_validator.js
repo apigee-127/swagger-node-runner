@@ -10,7 +10,7 @@ module.exports = function create(fittingDef, pipes) {
   debug('validator config: %j', validatorConfig);
   var middleware = pipes.config.swaggerNodeRunner.swaggerTools.swaggerValidator(validatorConfig);
 
-  return function swagger_security(context, cb) {
+  return function swagger_validator(context, cb) {
     middleware(context.request, context.response, cb);
   }
 };

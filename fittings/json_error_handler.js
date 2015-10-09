@@ -15,7 +15,15 @@ module.exports = function create(fittingDef) {
 
     try {
       context.headers['Content-Type'] = 'application/json';
-      context.statusCode = context.statusCode || 500;
+
+      if (!context.statusCode || context.statusCode < 400) {
+        if (context.response && context.response.statusCode && context.response.statusCode >= 400) {
+          context.statusCode = context.response.statusCode;
+        } else {
+          context.statusCode = 500;
+        }
+      }
+
       Object.defineProperty(err, 'message', { enumerable: true }); // include message property in response
       if (context.statusCode === 500) {
         console.error(err.stack);
