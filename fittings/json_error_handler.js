@@ -19,6 +19,9 @@ module.exports = function create(fittingDef) {
       if (!context.statusCode || context.statusCode < 400) {
         if (context.response && context.response.statusCode && context.response.statusCode >= 400) {
           context.statusCode = context.response.statusCode;
+        } else if (err.statusCode && err.statusCode >= 400) {
+          context.statusCode = err.statusCode;
+          delete(err.statusCode);
         } else {
           context.statusCode = 500;
         }
