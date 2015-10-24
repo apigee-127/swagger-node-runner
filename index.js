@@ -4,9 +4,11 @@
 Runner:
   config
   swagger
-  swaggerTools
+  api  // (sway)
   connectMiddleware()
   resolveAppPath()
+  swaggerSecurityHandlers
+  bagpipes
 
 config:
   appRoot
@@ -17,21 +19,23 @@ config:
   securityHandlers
  */
 
+module.exports = {
+  create: create
+};
+
 var _ = require('lodash');
 var yaml = require('js-yaml');
-var fs = require('fs');
 var path = require('path');
-var initSwaggerTools = require('swagger-tools').initializeMiddleware;
-var debug = require('debug')('pipe');
+var sway = require('sway');
+var debug = require('debug')('swagger');
 var bagpipes = require('bagpipes');
+var helpers = require('./lib/helpers');
 
 var SWAGGER_SELECTED_PIPE = 'x-swagger-pipe';
 var SWAGGER_ROUTER_CONTROLLER = 'x-swagger-router-controller';
-
 var DEFAULT_FITTINGS_DIRS = [ 'api/fittings' ];
 var DEFAULT_VIEWS_DIRS = [ 'api/views' ];
-
-var appPaths = { // relative to appRoot
+var DEFAULT_APP_PATHS = { // relative to appRoot
   swaggerFile: 'api/swagger/swagger.yaml',
   controllersDir: 'api/controllers',
   mockControllersDir: 'api/mocks',
@@ -46,13 +50,13 @@ SwaggerNode config priority:
   4. defaults in this file
  */
 
-module.exports.create = function(config, cb) {
+function create(config, cb) {
 
   if (!config || !config.appRoot) { return cb(new Error('config.appRoot is required')); }
   if (!_.isFunction(cb)) { return cb(new Error('callback is required')); }
 
   new Runner(config, cb);
-};
+}
 
 function Runner(appJsConfig, cb) {
 
@@ -89,17 +93,32 @@ function Runner(appJsConfig, cb) {
     }
   };
 
-  this.getPipe = function(req) {
+  this.getOperation = function getOperation(req) {
+    return this.api.getOperation(req);
+  };
 
-    if (!(req.swagger && req.swagger.path)) {
-      debug('no swagger path');
-      return null;
-    }
+  this.applyMetadata = function applyMetadata(req, operation, cb) {
 
-    var path = req.swagger.path;
+    var swagger = req.swagger = {};
+    swagger.operation = operation;
+    // todo: do we need any of this?
+    //swagger.operationPath = operation.pathObject;
+    //swagger.operationParameters = operation.parameterObjects;
+    //swagger.security = operation.securityDefinitions;
+    //swagger.swaggerVersion = operation.api.version;
+
+    helpers.resolveParameters(req, cb);
+  };
+
+    // must assign req.swagger (see #applyMetadata) before calling
+  this.getPipe = function getPipe(req) {
+
     var operation = req.swagger.operation;
 
-    var config = self.config.swagger;
+    if (!operation) { return null; }
+
+    var path = operation.pathObject;
+    var config = this.config.swagger;
 
     // prefer explicit pipe
     var pipeName;
@@ -140,15 +159,19 @@ function Runner(appJsConfig, cb) {
   };
 
   // don't override if env var already set
-  if (appJsConfig.configDir && !process.env.NODE_CONFIG_DIR) {
+  if (!process.env.NODE_CONFIG_DIR) {
+    if (!appJsConfig.configDir) { appJsConfig.configDir = 'config'; }
     process.env.NODE_CONFIG_DIR = path.resolve(appJsConfig.appRoot, appJsConfig.configDir);
   }
   var config = require('config');
 
   var swaggerConfigDefaults = {
     validateResponse: true,
-    controllersDirs: [ this.resolveAppPath(appPaths.controllersDir) ],
-    mockControllersDirs: [ this.resolveAppPath(appPaths.mockControllersDir) ]
+    enforceUniqueOperationId: false,
+    startWithErrors: false,
+    startWithWarnings: true,
+    controllersDirs: [ this.resolveAppPath(DEFAULT_APP_PATHS.controllersDir) ],
+    mockControllersDirs: [ this.resolveAppPath(DEFAULT_APP_PATHS.mockControllersDir) ]
   };
 
   config.swagger = _.defaults(readEnvConfig(),
@@ -159,25 +182,59 @@ function Runner(appJsConfig, cb) {
   this.config = config;
   debug('resolved config: %j', this.config);
 
-  if (_.isObject(appJsConfig.swagger)) { // allow direct setting of swagger
-    this.swagger = appJsConfig.swagger;
-  } else {
-    try {
-      var swaggerFile = appJsConfig.swaggerFile || this.resolveAppPath(appPaths.swaggerFile);
-      var swaggerString = fs.readFileSync(swaggerFile, 'utf8');
-      this.swagger = yaml.safeLoad(swaggerString);
-    } catch (err) {
-      return cb(err);
-    }
-  }
-
   var self = this;
-  initSwaggerTools(self.swagger, function(swaggerTools) {
-    self.swaggerTools = swaggerTools; // note: must be assigned before create for swagger fittings to reference
-    self.swaggerSecurityHandlers = appJsConfig.swaggerSecurityHandlers;
-    self.bagpipes = createPipes(self);
-    cb(null, self);
-  });
+  var swayOpts = {
+    definition: appJsConfig.swagger || appJsConfig.swaggerFile || this.resolveAppPath(DEFAULT_APP_PATHS.swaggerFile)
+  };
+
+  // sway uses Promises
+  sway.create(swayOpts)
+    .then(function(api) {
+
+      api.validate();
+
+      var errors = api.getLastErrors();
+
+      if (errors && errors.length > 0) {
+        if (!config.swagger.enforceUniqueOperationId) {
+          errors = errors.filter(function(err) {
+            return (err.code !== 'DUPLICATE_OPERATIONID');
+          });
+        }
+        if (errors.length > 0) {
+          if (config.swagger.startWithErrors) {
+            var errorText = JSON.stringify(errors);
+            console.error(errorText, 2);
+          } else {
+            throw new Error(errors, 2);
+          }
+        }
+      }
+
+      var warnings = api.getLastWarnings();
+      if (warnings && warnings.length > 0) {
+        var warningText = JSON.stringify(warnings);
+        if (config.swagger.startWithWarnings) {
+          console.error(warningText, 2);
+        } else {
+          throw new Error(warningText, 2);
+        }
+      }
+
+      self.api = api;
+      self.swagger = api.definition;
+      self.swaggerSecurityHandlers = appJsConfig.swaggerSecurityHandlers;
+      self.bagpipes = createPipes(self);
+
+      cb(null, self);
+    })
+    .catch(function(err) {
+      cb(err);
+    })
+    .catch(function(err) {
+      console.error('Error in callback! Tossing to global error handler.', err);
+      process.nextTick(function() { throw err; });
+    })
 }
 
 function createPipes(self) {
@@ -219,10 +276,6 @@ function createPipes(self) {
         '_router'
       ]
     };
-
-    // todo: support this legacy config? how?
-    // docEndpoints:
-    //   raw: /swagger
 
     if (config.mapErrorsToJson) {
       config.bagpipes.swagger_controllers.unshift({ onError: 'json_error_handler' });

@@ -1,6 +1,6 @@
 'use strict';
 
-var debug = require('debug')('pipes:fittings');
+var debug = require('debug')('swagger:swagger_raw');
 var YAML = require('js-yaml');
 var _ = require('lodash');
 
@@ -9,6 +9,8 @@ var DROP_SWAGGER_EXTENSIONS = /^(?!x-.*)/;
 
 module.exports = function create(fittingDef, bagpipes) {
 
+  debug('config: %j', fittingDef);
+
   var filter = DROP_SWAGGER_EXTENSIONS;
   if (fittingDef.filter) {
     filter = new RegExp(fittingDef.filter);
@@ -16,11 +18,15 @@ module.exports = function create(fittingDef, bagpipes) {
   debug('swagger doc filter: %s', filter);
   var filteredSwagger = filterKeysRecursive(bagpipes.config.swaggerNodeRunner.swagger, filter);
 
+  if (!filteredSwagger) { return next(null, ''); }
+
   // should this just be based on accept type?
   var yaml = YAML.safeDump(filteredSwagger, { indent: 2 });
   var json = JSON.stringify(filteredSwagger, null, 2);
 
   return function swagger_raw(context, next) {
+
+    debug('exec');
 
     var req = context.request;
 

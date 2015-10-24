@@ -1,9 +1,11 @@
 'use strict';
 
-var debug = require('debug')('pipes:fittings');
+var debug = require('debug')('swagger:json_error_handler');
 var util = require('util');
 
 module.exports = function create(fittingDef) {
+
+  debug('config: %j', fittingDef);
 
   return function error_handler(context, next) {
 
@@ -11,7 +13,7 @@ module.exports = function create(fittingDef) {
 
     var err = context.error;
 
-    debug('jsonErrorHandler: %s', context.error.message);
+    debug('exec: %s', context.error.message);
 
     try {
       context.headers['Content-Type'] = 'application/json';
