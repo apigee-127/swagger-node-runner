@@ -5,7 +5,7 @@ var CORS = require('cors');
 
 // config options: https://www.npmjs.com/package/cors
 
-module.exports = function create(fittingDef) {
+module.exports = function create(fittingDef, bagpipes) {
 
   debug('config: %j', fittingDef);
   var middleware = CORS(fittingDef);

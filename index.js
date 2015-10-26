@@ -97,17 +97,12 @@ function Runner(appJsConfig, cb) {
     return this.api.getOperation(req);
   };
 
+  // adds req.swagger to the request
   this.applyMetadata = function applyMetadata(req, operation, cb) {
 
     var swagger = req.swagger = {};
     swagger.operation = operation;
-    // todo: do we need any of this?
-    //swagger.operationPath = operation.pathObject;
-    //swagger.operationParameters = operation.parameterObjects;
-    //swagger.security = operation.securityDefinitions;
-    //swagger.swaggerVersion = operation.api.version;
-
-    helpers.resolveParameters(req, cb);
+    cb();
   };
 
     // must assign req.swagger (see #applyMetadata) before calling

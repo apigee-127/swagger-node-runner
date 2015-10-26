@@ -3,7 +3,7 @@
 var debug = require('debug')('swagger:json_error_handler');
 var util = require('util');
 
-module.exports = function create(fittingDef) {
+module.exports = function create(fittingDef, bagpipes) {
 
   debug('config: %j', fittingDef);
 

@@ -3,7 +3,7 @@
 var debug = require('debug')('swagger:cors');
 var Url = require('url');
 
-module.exports = function create(fittingDef) {
+module.exports = function create(fittingDef, bagpipes) {
 
   debug('config: %j', fittingDef);
 

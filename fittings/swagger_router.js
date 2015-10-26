@@ -5,14 +5,14 @@ var path = require('path');
 var assert = require('assert');
 var SWAGGER_ROUTER_CONTROLLER = 'x-swagger-router-controller';
 
-module.exports = function create(fittingDef, pipes) {
+module.exports = function create(fittingDef, bagpipes) {
 
   debug('config: %j', fittingDef);
 
   assert(Array.isArray(fittingDef.controllersDirs), 'controllersDirs must be an array');
   assert(Array.isArray(fittingDef.mockControllersDirs), 'mockControllersDirs must be an array');
 
-  var swaggerNodeRunner = pipes.config.swaggerNodeRunner;
+  var swaggerNodeRunner = bagpipes.config.swaggerNodeRunner;
   var appRoot = swaggerNodeRunner.config.swagger.appRoot;
 
   var mockMode = !!fittingDef.mockMode || !!swaggerNodeRunner.config.swagger.mockMode;
