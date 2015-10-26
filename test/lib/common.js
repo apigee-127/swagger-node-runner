@@ -69,11 +69,68 @@ module.exports = function() {
         .field('name', 'Scott')
         .attach('example_file', path.resolve(__dirname, '../assets/example_file.txt'))
         .set('Accept', 'application/json')
-        //.expect(200)
+        .expect(200)
         .expect('Content-Type', /json/)
         .end(function(err, res) {
           should.not.exist(err);
           res.body.should.eql('Hello, Scott! Thanks for the 7 byte file!');
+          done();
+        });
+    });
+  });
+
+  describe('request validation', function() {
+
+    it('should reject when invalid parameter type', function(done) {
+      request(this.app)
+        .put('/expect_integer?name=Scott')
+        .set('Content-Type', 'application/json')
+        .expect(400)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+          res.body.message.should.eql('Validation errors');
+          res.body.errors.should.be.an.Array;
+          res.body.errors[0].should.have.properties({
+            message: 'Not a valid integer: Scott'
+          });
+          done();
+        });
+    });
+
+    it('should reject when missing parameter', function(done) {
+      request(this.app)
+        .get('/hello_form')
+        .send('xxx=Scott')
+        .set('Accept', 'application/json')
+        .expect(400)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+          res.body.should.have.property('errors');
+          res.body.message.should.eql('Validation errors');
+          res.body.errors.should.be.an.Array;
+          res.body.errors[0].should.have.properties({
+            message: 'Request validation failed: Parameter (name) value is required but was not provided',
+            code: 'REQUIRED',
+            failedValidation: true,
+            path: [ 'paths', '/hello_form', 'get', 'parameters', '0' ]
+          });
+          done();
+        });
+    });
+
+    it('should reject when invalid content', function(done) {
+      request(this.app)
+        .put('/expect_integer')
+        .set('Content-Type', 'text/plain')
+        .expect(400)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+          res.body.message.should.eql('Validation errors');
+          res.body.errors.should.be.an.Array;
+          res.body.errors[0].should.eql('Invalid content type (text/plain). These are valid: application/json');
           done();
         });
     });

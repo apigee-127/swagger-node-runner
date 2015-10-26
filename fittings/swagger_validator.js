@@ -2,9 +2,10 @@
 
 var debug = require('debug')('swagger:swagger_validator');
 var _ = require('lodash');
+var util = require('util');
 var onFinished = require('on-finished');
 
-module.exports = function create(fittingDef, pipes) {
+module.exports = function create(fittingDef, bagpipes) {
 
   debug('config: %j', fittingDef);
 
@@ -12,42 +13,61 @@ module.exports = function create(fittingDef, pipes) {
 
     debug('exec');
 
-    if (fittingDef.validateResponse) {
-      // Hapi middleware currently passes in request.raw as request and a wrapper as response
-      // todo: better Hapi solution?
-      var response = context.request.res || context.response;
-      onFinished(context.response, function (err, res) {
-        if (!err) {
-          debug('validating response');
-          // todo: validate response when Sway supports it
-        }
-      });
-    }
+    // todo: validate response when Sway supports it - maybe a different fitting?
+    //if (fittingDef.validateResponse) {
+    //  // Hapi middleware currently passes in request.raw as request and a wrapper as response
+    //  // 'context.request.res' is to access the Hapi response. Better Hapi solution? Use a hook?
+    //  var response = context.request.res || context.response;
+    //  onFinished(context.response, function (err, res) {
+    //    if (!err) {
+    //      debug('validating response');
+    //      ....
+    //    }
+    //  });
+    //}
 
     // todo: validate all the other req stuff
+    var error = validateContentType(context.request);
 
     // validate parameters
-    var error = undefined;
-    _.forEach(context.request.swagger.params, function(parameterValue) {
+    _.forEach(context.request.swagger.params, function(parameterValue, parameterName) {
       if (!parameterValue.valid) {
-        if (!error) {
-          error = new Error('Validation errors');
-          error.statusCode = 400;
-          error.errors = [];
-        }
-        error.errors.push(formatError(parameterValue.error));
+        error = error || makeValidationError();
+        error.errors.push(formatError(parameterName, parameterValue.error));
       }
     });
+
     cb(error);
   }
 };
 
-function formatError(err) {
+function makeValidationError() {
+  var error = new Error('Validation errors');
+  error.statusCode = 400;
+  error.errors = [];
+  return error;
+}
+
+function validateContentType(req) {
+  var contentType = req.headers['content-type'];
+  contentType = contentType ? contentType.split(';')[0] : 'application/octet-stream';
+
+  var operation = req.swagger.operation;
+  var consumes = _.union(operation.api.definition.consumes, operation.consumes);
+
+  if (consumes.length > 0 && ['POST', 'PUT'].indexOf(req.method) !== -1 && consumes.indexOf(contentType) === -1) {
+    var error = makeValidationError();
+    error.errors.push(util.format('Invalid content type (%s). These are valid: %s', contentType, consumes.join(', ')));
+    return error;
+  }
+}
+
+function formatError(paramName, err) {
 
   // Format the errors to include the parameter information
   if (err.failedValidation === true) {
     var currentMessage = err.message;
-    var validationMessage = 'Parameter (' + err.paramName + ') ';
+    var validationMessage = 'Parameter (' + paramName + ') ';
 
     switch (err.code) {
       case 'ENUM_MISMATCH':

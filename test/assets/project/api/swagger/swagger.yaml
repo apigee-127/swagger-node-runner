@@ -62,7 +62,7 @@ paths:
         - name: name
           in: formData
           description: The name of the person to whom to say hello
-          required: false
+          required: true
           type: string
       responses:
         "200":
@@ -131,6 +131,26 @@ paths:
           required: false
           schema:
             $ref: "#/definitions/NameRequest"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /expect_integer:
+    x-swagger-router-controller: hello_world
+    put:
+      description: Returns 'Hello' to the caller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: integer
       responses:
         "200":
           description: Success
