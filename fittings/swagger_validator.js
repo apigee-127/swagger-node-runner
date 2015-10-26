@@ -26,7 +26,6 @@ module.exports = function create(fittingDef, bagpipes) {
     //  });
     //}
 
-    // todo: validate all the other req stuff
     var error = validateContentType(context.request);
 
     // validate parameters
