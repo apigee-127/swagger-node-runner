@@ -27,17 +27,16 @@ module.exports = function create(fittingDef, bagpipes) {
     debug('exec');
 
     var operation = context.request.swagger.operation;
-    if (operation) {
-      var controllerName = operation[SWAGGER_ROUTER_CONTROLLER] || operation.pathObject[SWAGGER_ROUTER_CONTROLLER];
+    var controllerName = operation[SWAGGER_ROUTER_CONTROLLER] || operation.pathObject[SWAGGER_ROUTER_CONTROLLER];
 
-      // todo: caching! error handling! mock mode!
-      controllersDirs.forEach(function(controllersDir) {
-        var controllerPath = path.resolve(controllersDir, controllerName);
-        var controller = require(controllerPath);
-        var controllerFunction = controller[operation.definition['operationId']];
-        controllerFunction(context.request, context.response, cb);
-      });
-    }
+    // todo: caching! error handling! mock mode!
+    controllersDirs.forEach(function(controllersDir) {
+      var controllerPath = path.resolve(controllersDir, controllerName);
+      var controller = require(controllerPath);
+      var controllerFunction = controller[operation.definition['operationId']];
+      controllerFunction(context.request, context.response, cb);
+    });
+
     cb();
   }
 };

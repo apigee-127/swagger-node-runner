@@ -97,6 +97,10 @@ function Runner(appJsConfig, cb) {
     return this.api.getOperation(req);
   };
 
+  this.getPath = function getPath(req) {
+    return this.api.getPath(req);
+  };
+
   // adds req.swagger to the request
   this.applyMetadata = function applyMetadata(req, operation, cb) {
 

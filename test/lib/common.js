@@ -77,6 +77,26 @@ module.exports = function() {
           done();
         });
     });
+
+    it('should get a 404 for unknown path and operation', function(done) {
+      request(this.app)
+        .get('/not_there')
+        .expect(404)
+        .end(function(err, res) {
+          should.not.exist(err);
+          done();
+        });
+    });
+
+    it('should get a 405 for known path and unknown operation', function(done) {
+      request(this.app)
+        .put('/hello')
+        .expect(405)
+        .end(function(err, res) {
+          should.not.exist(err);
+          done();
+        });
+    });
   });
 
   describe('request validation', function() {
