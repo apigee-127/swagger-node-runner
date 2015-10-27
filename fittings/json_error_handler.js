@@ -16,8 +16,6 @@ module.exports = function create(fittingDef, bagpipes) {
     debug('exec: %s', context.error.message);
 
     try {
-      context.headers['Content-Type'] = 'application/json';
-
       if (!context.statusCode || context.statusCode < 400) {
         if (context.response && context.response.statusCode && context.response.statusCode >= 400) {
           context.statusCode = context.response.statusCode;
@@ -29,10 +27,11 @@ module.exports = function create(fittingDef, bagpipes) {
         }
       }
 
+      if (context.statusCode === 500 && !fittingDef.handle500Errors) { return next(err); }
+
+      context.headers['Content-Type'] = 'application/json';
       Object.defineProperty(err, 'message', { enumerable: true }); // include message property in response
-      if (context.statusCode === 500) {
-        console.error(err.stack);
-      }
+
       delete(context.error);
       next(null, JSON.stringify(err));
     } catch (err2) {
