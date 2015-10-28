@@ -191,7 +191,6 @@ function Runner(appJsConfig, cb) {
       api.validate();
 
       var errors = api.getLastErrors();
-
       if (errors && errors.length > 0) {
         if (!self.config.swagger.enforceUniqueOperationId) {
           errors = errors.filter(function(err) {
