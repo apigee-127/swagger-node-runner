@@ -46,8 +46,8 @@
     "supertest": "^1.1.0"
   },
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha -u exports -R spec test test/lib test/fittings",
-    "coverage": "node node_modules/istanbul/lib/cli.js cover _mocha -- -u exports -R spec test test/lib test/fittings",
-    "coveralls": "node node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js --verbose"
+    "test": "node_modules/mocha/bin/_mocha -u exports -R spec test test/lib test/fittings",
+    "coverage": "node node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -u exports -R spec test test/lib test/fittings",
+    "coveralls": "node node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec test test/lib test/fittings && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js --verbose"
   }
 }
