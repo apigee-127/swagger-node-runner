@@ -27,6 +27,7 @@ module.exports = function create(fittingDef, bagpipes) {
     //}
 
     var error = validateContentType(context.request);
+    error = validateAcceptType(error, context.request);
 
     // validate parameters
     _.forEach(context.request.swagger.params, function(parameterValue, parameterName) {
@@ -52,13 +53,29 @@ function validateContentType(req) {
   contentType = contentType ? contentType.split(';')[0] : 'application/octet-stream';
 
   var operation = req.swagger.operation;
-  var consumes = _.union(operation.api.definition.consumes, operation.consumes);
+  var consumes = operation.definition.consumes || operation.api.definition.consumes;
 
-  if (consumes.length > 0 && ['POST', 'PUT'].indexOf(req.method) !== -1 && consumes.indexOf(contentType) === -1) {
+  if (consumes && consumes.indexOf(contentType) === -1 && ['POST', 'PUT'].indexOf(req.method) > -1) {
     var error = makeValidationError();
     error.errors.push(util.format('Invalid content type (%s). These are valid: %s', contentType, consumes.join(', ')));
     return error;
   }
+}
+
+function validateAcceptType(error, req) {
+
+  return error;
+
+  // todo: add support for matching accept header w/ produces declarations
+  // see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+  //var accept = req.headers['accept'];
+  //var produces = _.union(operation.api.definition.produces, operation.definition.produces);
+  //
+  //if (noMatch) {
+  //  var error = error || makeValidationError();
+  //  error.errors.push(util.format('some error'));
+  //  return error;
+  //}
 }
 
 function formatError(paramName, err) {
