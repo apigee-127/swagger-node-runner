@@ -47,5 +47,6 @@
   "scripts": {
     "test": "node_modules/mocha/bin/mocha -u exports -R spec test test/lib test/fittings",
     "coverage": "istanbul cover _mocha -- -u exports -R spec test test/lib test/fittings"
+    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js --verbose"
   }
 }
