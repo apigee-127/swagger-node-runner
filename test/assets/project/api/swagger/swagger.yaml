@@ -171,12 +171,6 @@ paths:
     get:
       description: Returns 'Hello' to the caller
       operationId: hello_mock
-      parameters:
-        - name: name
-          in: query
-          description: The name of the person to whom to say hello
-          required: false
-          type: string
       responses:
         "200":
           description: Success
@@ -185,6 +179,26 @@ paths:
           examples:
             application/json:
               message: 'An example message'
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /hello_missing_controller:
+    x-swagger-router-controller: missing_controller
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: missing_operation
+      responses:
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /hello_missing_operation:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: missing_operation
+      responses:
         default:
           description: Error
           schema:

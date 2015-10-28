@@ -72,7 +72,7 @@ describe('mock', function() {
       });
   });
 
-  it('should return example if no sample or mock controller', function(done) {
+  it('should return example based on _mockReturnStatus header', function(done) {
     request(this.app)
       .get('/hello_form')
       .send('name=Scott')
@@ -88,6 +88,26 @@ describe('mock', function() {
         res.body.string.should.be.a.String;
         res.body.should.have.property('integer');
         res.body.integer.should.be.a.Integer;
+        done();
+      });
+  });
+
+  it('should return example based on accept header', function(done) {
+    request(this.app)
+      .get('/hello_form')
+      .send('name=Scott')
+      .set('Accept', 'text/plain')
+      .expect(200)
+      //.expect('Content-Type', 'text/plain')
+      .end(function(err, res) {
+        should.not.exist(err);
+        res.body.should.be.a.String;
+        //res.body.should.not.eql({ message: 'An example message' });
+        //res.body.should.not.eql({ message: 'mocking from the controller!'});
+        //res.body.should.have.property('string');
+        //res.body.string.should.be.a.String;
+        //res.body.should.have.property('integer');
+        //res.body.integer.should.be.a.Integer;
         done();
       });
   });

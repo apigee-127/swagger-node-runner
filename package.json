@@ -44,6 +44,6 @@
   },
   "scripts": {
     "test": "mocha -u exports -R spec test test/lib test/fittings",
-    "coverage": "istanbul cover _mocha -- -u exports -R spec test test/lib"
+    "coverage": "istanbul cover _mocha -- -u exports -R spec test test/lib test/fittings"
   }
 }

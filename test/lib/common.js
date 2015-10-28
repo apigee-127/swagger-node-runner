@@ -97,6 +97,26 @@ module.exports = function() {
           done();
         });
     });
+
+    it('should get a 500 for missing controller', function(done) {
+      request(this.app)
+        .put('/hello_missing_controller')
+        .expect(405)
+        .end(function(err, res) {
+          should.not.exist(err);
+          done();
+        });
+    });
+
+    it('should get a 405 for missing operation function', function(done) {
+      request(this.app)
+        .put('/hello_missing_operation')
+        .expect(405)
+        .end(function(err, res) {
+          should.not.exist(err);
+          done();
+        });
+    });
   });
 
   describe('request validation', function() {
