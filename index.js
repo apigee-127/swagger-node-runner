@@ -29,7 +29,6 @@ var path = require('path');
 var sway = require('sway');
 var debug = require('debug')('swagger');
 var bagpipes = require('bagpipes');
-var helpers = require('./lib/helpers');
 
 var SWAGGER_SELECTED_PIPE = 'x-swagger-pipe';
 var SWAGGER_ROUTER_CONTROLLER = 'x-swagger-router-controller';
@@ -162,23 +161,22 @@ function Runner(appJsConfig, cb) {
     if (!appJsConfig.configDir) { appJsConfig.configDir = 'config'; }
     process.env.NODE_CONFIG_DIR = path.resolve(appJsConfig.appRoot, appJsConfig.configDir);
   }
-  var config = require('config');
+  var Config = require('config');
 
   var swaggerConfigDefaults = {
-    validateResponse: true,
     enforceUniqueOperationId: false,
     startWithErrors: false,
-    startWithWarnings: true,
-    controllersDirs: [ this.resolveAppPath(DEFAULT_APP_PATHS.controllersDir) ],
-    mockControllersDirs: [ this.resolveAppPath(DEFAULT_APP_PATHS.mockControllersDir) ]
+    startWithWarnings: true
   };
 
-  config.swagger = _.defaults(readEnvConfig(),
-                              appJsConfig,
-                              config.swagger || {},
-                              swaggerConfigDefaults);
+  this.config = Config.util.cloneDeep(Config);
+  this.config.swagger =
+    Config.util.extendDeep(
+      swaggerConfigDefaults,
+      this.config.swagger,
+      appJsConfig,
+      readEnvConfig());
 
-  this.config = config;
   debug('resolved config: %j', this.config);
 
   var self = this;
@@ -195,13 +193,13 @@ function Runner(appJsConfig, cb) {
       var errors = api.getLastErrors();
 
       if (errors && errors.length > 0) {
-        if (!config.swagger.enforceUniqueOperationId) {
+        if (!self.config.swagger.enforceUniqueOperationId) {
           errors = errors.filter(function(err) {
             return (err.code !== 'DUPLICATE_OPERATIONID');
           });
         }
         if (errors.length > 0) {
-          if (config.swagger.startWithErrors) {
+          if (self.config.swagger.startWithErrors) {
             var errorText = JSON.stringify(errors);
             console.error(errorText, 2);
           } else {
@@ -213,7 +211,7 @@ function Runner(appJsConfig, cb) {
       var warnings = api.getLastWarnings();
       if (warnings && warnings.length > 0) {
         var warningText = JSON.stringify(warnings);
-        if (config.swagger.startWithWarnings) {
+        if (self.config.swagger.startWithWarnings) {
           console.error(warningText, 2);
         } else {
           throw new Error(warningText, 2);
@@ -269,6 +267,7 @@ function createPipes(self) {
       },
       swagger_controllers: [
         'cors',
+        'swagger_params_parser',
         'swagger_security',
         '_swagger_validate',
         'express_compatibility',
@@ -284,7 +283,6 @@ function createPipes(self) {
   var pipesDefs = config.bagpipes;
 
   var pipesConfig = {
-    connectMiddlewareDirs: config.controllersDirs,
     userFittingsDirs: fittingsDirs,
     userViewsDirs: viewsDirs,
     swaggerNodeRunner: self
