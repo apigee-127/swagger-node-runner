@@ -4,7 +4,11 @@ var _ = require('lodash');
 
 describe('json_error_handler', function() {
 
-  var jsonErrorHandler = json_error_handler();
+  var jsonErrorHandler = json_error_handler({});
+
+  var err = new Error('this is a test');
+  Object.defineProperty(err, 'message', { enumerable: true });
+  var errorString = JSON.stringify(err);
 
   describe('error in context', function() {
 
@@ -18,8 +22,10 @@ describe('json_error_handler', function() {
 
     it('should set headers', function(done) {
 
+      context.error.statusCode = 400;
       jsonErrorHandler(context, function(err) {
         should.not.exist(err);
+        should.not.exist(context.error);
         'application/json'.should.eql(context.headers['Content-Type']);
         done();
       });
@@ -27,22 +33,46 @@ describe('json_error_handler', function() {
 
     it('should set status code', function(done) {
 
+      context.error.statusCode = 400;
       jsonErrorHandler(context, function(err) {
         should.not.exist(err);
-        context.statusCode.should.eql(500);
+        should.not.exist(context.error);
+        context.statusCode.should.eql(400);
         done();
       });
     });
 
     it('should emit appropriate json', function(done) {
 
-      var err = new Error('this is a test');
-      Object.defineProperty(err, 'message', { enumerable: true });
-      var errorString = JSON.stringify(err);
+      context.error.statusCode = 400;
 
       jsonErrorHandler(context, function(err, output) {
         should.not.exist(err);
         should.not.exist(context.error);
+        errorString.should.eql(output);
+        done();
+      });
+    });
+
+    it('should not handle unexpected errors by default', function(done) {
+
+      jsonErrorHandler(context, function(err) {
+        should.exist(err);
+        should.exist(context.error);
+        should.not.exist(context.headers['Content-Type']);
+        context.statusCode.should.eql(500);
+        done();
+      });
+    });
+
+    it('should handle unexpected errors if configured to do so', function(done) {
+
+      var jsonErrorHandler = json_error_handler({ handle500Errors: true });
+      jsonErrorHandler(context, function(err, output) {
+        should.not.exist(err);
+        should.not.exist(context.error);
+        'application/json'.should.eql(context.headers['Content-Type']);
+        context.statusCode.should.eql(500);
         errorString.should.eql(output);
         done();
       });

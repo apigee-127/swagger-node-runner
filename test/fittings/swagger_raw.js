@@ -17,7 +17,9 @@ describe('swagger_raw', function() {
     swaggerDoc = swagger_raw({}, bagpipes);
 
     var filteredSwagger = _.cloneDeep(swagger);
-    delete(filteredSwagger.paths['/hello']['x-swagger-router-controller']);
+    _.forEach(filteredSwagger.paths, function(path, name) {
+      delete(path['x-swagger-router-controller']);
+    });
     yaml = YAML.safeDump(filteredSwagger, { indent: 2 });
     json = JSON.stringify(filteredSwagger, null, 2);
   });

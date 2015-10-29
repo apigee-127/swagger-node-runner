@@ -20,20 +20,35 @@
     "url": "https://github.com/theganyo/swagger-node-runner.git"
   },
   "dependencies": {
+    "async": "^1.5.0",
     "bagpipes": "^0.0.6",
+    "body-parser": "^1.14.1",
     "config": "^1.16.0",
     "cors": "^2.5.3",
     "debug": "^2.1.3",
     "js-yaml": "^3.3.0",
     "lodash": "^3.6.0",
-    "swagger-tools": "^0.9.7"
+    "multer": "^1.0.6",
+    "on-finished": "^2.3.0",
+    "parseurl": "^1.3.0",
+    "qs": "^5.2.0",
+    "sway": "^0.3.2"
   },
   "devDependencies": {
+    "connect": "^3.4.0",
+    "coveralls": "^2.11.4",
+    "express": "^4.13.3",
+    "hapi": "^11.0.2",
+    "istanbul": "^0.4.0",
     "mocha": "^2.3.0",
-    "should": "^7.1.0"
+    "mocha-lcov-reporter": "^1.0.0",
+    "restify": "^4.0.3",
+    "should": "^7.1.0",
+    "supertest": "^1.1.0"
   },
   "scripts": {
-    "test": "mocha -u exports -R spec test test/lib test/fittings",
-    "coverage": "istanbul cover _mocha -- -u exports -R spec test test/lib"
+    "test": "node_modules/mocha/bin/_mocha -u exports -R spec test test/lib test/fittings",
+    "coverage": "node node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -u exports -R spec test test/lib test/fittings",
+    "coveralls": "node node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec test test/lib test/fittings && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js --verbose"
   }
 }
