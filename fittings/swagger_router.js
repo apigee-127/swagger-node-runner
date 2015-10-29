@@ -89,7 +89,9 @@ module.exports = function create(fittingDef, bagpipes) {
         debug('returning mock sample value', mock);
       }
 
+      context.headers['Content-Type'] = mimetype;
       context.statusCode = statusCode;
+
       return cb(null, mock);
     }
 

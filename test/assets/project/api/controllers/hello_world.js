@@ -26,13 +26,3 @@ function hello_file(req, res) {
   var hello = util.format('Hello, %s! Thanks for the %d byte file!', name, file.size);
   res.json(hello);
 }
-
-/*
-file:
- { fieldname: 'example_file',
- originalname: 'example_file.txt',
- encoding: '7bit',
- mimetype: 'text/plain',
- buffer: <Buffer 45 78 61 6d 70 6c 65>,
- size: 7 }
- */

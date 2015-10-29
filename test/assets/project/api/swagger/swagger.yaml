@@ -30,6 +30,8 @@ paths:
           examples:
             application/json:
               message: 'An example message'
+            application/x-yaml:
+              message: 'A yaml example'
         default:
           description: Error
           schema:

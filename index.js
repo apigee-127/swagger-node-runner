@@ -202,7 +202,9 @@ function Runner(appJsConfig, cb) {
             var errorText = JSON.stringify(errors);
             console.error(errorText, 2);
           } else {
-            throw new Error(errors, 2);
+            var err = new Error('Swagger validation errors:');
+            err.validationErrors = errors;
+            throw err;
           }
         }
       }
@@ -213,7 +215,9 @@ function Runner(appJsConfig, cb) {
         if (self.config.swagger.startWithWarnings) {
           console.error(warningText, 2);
         } else {
-          throw new Error(warningText, 2);
+          var err = new Error('Swagger validation warnings:');
+          err.validationWarnings = warnings;
+          throw err;
         }
       }
 
@@ -228,7 +232,7 @@ function Runner(appJsConfig, cb) {
       cb(err);
     })
     .catch(function(err) {
-      console.error('Error in callback! Tossing to global error handler.', err);
+      console.error('Error in callback! Tossing to global error handler.', err.stack);
       process.nextTick(function() { throw err; });
     })
 }
@@ -247,7 +251,7 @@ function createPipes(self) {
   });
 
   // legacy support: set up a default piping for traditional swagger-node if nothing is specified
-  if (!config.bagpipes) {
+  if (!config.bagpipes || config.bagpipes ==='DEFAULTS_TEST') {
 
     debug('**** No bagpipes defined in config. Using default setup. ****');
 
@@ -302,7 +306,11 @@ function readEnvConfig() {
           if (!configItem[subKey]) { configItem[subKey] = {}; }
           configItem = configItem[subKey];
         } else {
-          configItem[subKey] = JSON.parse(value);
+          try {
+            configItem[subKey] = JSON.parse(value);
+          } catch (err) {
+            configItem[subKey] = value;
+          }
         }
       }
     }

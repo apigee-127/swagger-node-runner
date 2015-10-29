@@ -85,6 +85,7 @@ function formatError(paramName, err) {
     var currentMessage = err.message;
     var validationMessage = 'Parameter (' + paramName + ') ';
 
+    /* istanbul ignore next */
     switch (err.code) {
       case 'ENUM_MISMATCH':
       case 'MAXIMUM':
