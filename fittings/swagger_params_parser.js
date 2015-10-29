@@ -13,13 +13,15 @@ module.exports = function create(fittingDef, bagpipes) {
   debug('config: %j', fittingDef);
 
   _.defaults(fittingDef, {
-    bodyParserOptions: {
+    jsonOptions: {
+    },
+    urlencodedOptions: {
       extended: false
     },
     multerOptions: {
       inMemory: true
     },
-    textBodyParserOptions: {
+    textOptions: {
       type: '*/*'
     }
   });
@@ -92,16 +94,16 @@ function parseRequest(req, fittingDef, cb) {
     },
     function parseForm(cb) {
       if (req.body || !shouldParseForm) { return cb(); }
-      var urlEncodedBodyParser = bodyParser.urlencoded(fittingDef.bodyParserOptions);
+      var urlEncodedBodyParser = bodyParser.urlencoded(fittingDef.urlencodedOptions);
       urlEncodedBodyParser(req, res, cb);
     },
     function parseJson(cb) {
       if (req.body) { return cb(); }
-      bodyParser.json()(req, res, cb);
+      bodyParser.json(fittingDef.jsonOptions)(req, res, cb);
     },
     function parseText(cb) {
       if (req.body) { return cb(); }
-      bodyParser.text(fittingDef.textBodyParserOptions)(req, res, cb);
+      bodyParser.text(fittingDef.textOptions)(req, res, cb);
     }
   ], function finishedParseBody(err) {
     return cb(err);
