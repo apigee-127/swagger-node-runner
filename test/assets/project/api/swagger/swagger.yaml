@@ -215,6 +215,16 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /empty_path: {}
+  /no_router_controller:
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: no_operation
+      responses:
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 definitions:
   HelloWorldResponse:
     required:

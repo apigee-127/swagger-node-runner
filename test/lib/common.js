@@ -302,5 +302,29 @@ module.exports = function() {
           });
       });
     });
-  })
+  });
+
+  it('empty path', function(done) {
+
+    request(this.app)
+      .put('/empty_path')
+      .set('Accept', 'application/json')
+      .expect(405)
+      .end(function(err, res) {
+        should.not.exist(err);
+        done();
+      });
+  });
+
+  it('no controller specified', function(done) {
+
+    request(this.app)
+      .get('/no_router_controller')
+      .set('Accept', 'application/json')
+      .expect(405)
+      .end(function(err, res) {
+        should.not.exist(err);
+        done();
+      });
+  });
 };
