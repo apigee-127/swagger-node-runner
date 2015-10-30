@@ -113,9 +113,7 @@ function Runner(appJsConfig, cb) {
 
     var operation = req.swagger.operation;
 
-    if (!operation) { return null; }
-
-    var path = operation.pathObject;
+    var path = operation ? operation.pathObject : this.getPath(req);
     var config = this.config.swagger;
 
     // prefer explicit pipe

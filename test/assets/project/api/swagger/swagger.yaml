@@ -205,6 +205,16 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+  /pipe_on_get:
+    get:
+      x-swagger-pipe: swagger_raw
+      responses:
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 definitions:
   HelloWorldResponse:
     required:

@@ -4,6 +4,7 @@ var should = require('should');
 var request = require('supertest');
 var path = require('path');
 var _ = require('lodash');
+var yaml = require('js-yaml');
 
 module.exports = function() {
 
@@ -242,4 +243,64 @@ module.exports = function() {
         });
     });
   });
-}
+
+  describe('raw bagpipe', function() {
+
+    describe('/swagger should respond', function() {
+
+      it('with json', function(done) {
+        request(this.app)
+          .get('/swagger')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function(err, res) {
+            should.not.exist(err);
+            res.body.swagger.should.eql('2.0');
+            done();
+          });
+      });
+
+      it('with yaml', function(done) {
+        request(this.app)
+          .get('/swagger')
+          .expect(200)
+          .set('Accept', 'text/yaml')
+          .expect('Content-Type', /yaml/)
+          .end(function(err, res) {
+            should.not.exist(err);
+            var swagger = yaml.safeLoad(res.text);
+            swagger.swagger.should.eql('2.0');
+            done();
+          });
+      });
+    });
+
+    describe('/pipe_on_get should respond', function() {
+
+      it('to get operation', function(done) {
+        request(this.app)
+          .get('/pipe_on_get')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function(err, res) {
+            should.not.exist(err);
+            res.body.swagger.should.eql('2.0');
+            done();
+          });
+      });
+
+      it('with 405 on put operation', function(done) {
+        request(this.app)
+          .put('/pipe_on_get')
+          .set('Accept', 'application/json')
+          .expect(405)
+          .end(function(err, res) {
+            should.not.exist(err);
+            done();
+          });
+      });
+    });
+  })
+};

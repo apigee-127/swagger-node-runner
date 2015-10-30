@@ -16,9 +16,14 @@ describe('swagger_raw', function() {
     var bagpipes = { config: { swaggerNodeRunner: { swagger: swagger }}};
     swaggerDoc = swagger_raw({}, bagpipes);
 
+    // hokey algorithm, but at least it's different than the one it's testing
     var filteredSwagger = _.cloneDeep(swagger);
-    _.forEach(filteredSwagger.paths, function(path, name) {
-      delete(path['x-swagger-router-controller']);
+    var OMIT = ['x-swagger-router-controller', 'x-swagger-pipe'];
+    _.forEach(filteredSwagger.paths, function(element, name) {
+      filteredSwagger.paths[name] = _.omit(element, OMIT);
+      _.forEach(filteredSwagger.paths[name], function(element, subName) {
+        filteredSwagger.paths[name][subName] = _.omit(element, OMIT);
+      });
     });
     yaml = YAML.safeDump(filteredSwagger, { indent: 2 });
     json = JSON.stringify(filteredSwagger, null, 2);
