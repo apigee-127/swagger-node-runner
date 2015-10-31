@@ -38,7 +38,7 @@
     "connect": "^3.4.0",
     "coveralls": "^2.11.4",
     "express": "^4.13.3",
-    "hapi": "^11.0.2",
+    "hapi": "^10.0.0",
     "istanbul": "^0.4.0",
     "mocha": "^2.3.0",
     "mocha-lcov-reporter": "^1.0.0",
