@@ -51,8 +51,8 @@ SwaggerNode config priority:
 
 function create(config, cb) {
 
+  if (!_.isFunction(cb)) { throw new Error('callback is required'); }
   if (!config || !config.appRoot) { return cb(new Error('config.appRoot is required')); }
-  if (!_.isFunction(cb)) { return cb(new Error('callback is required')); }
 
   new Runner(config, cb);
 }

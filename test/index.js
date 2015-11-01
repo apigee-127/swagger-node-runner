@@ -109,6 +109,11 @@ describe('index', function() {
           });
       });
     });
+
+    it('should fail without callback', function() {
+
+      (function() { SwaggerRunner.create(DEFAULT_PROJECT_CONFIG) }).should.throw('callback is required');
+    });
   });
 
   it('should continue with bad swagger if startWithErrors is true', function(done) {
