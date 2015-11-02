@@ -17,7 +17,7 @@ swagger:
 
     _swagger_validate:
       name: swagger_validator
-      validateResponse: false
+      validateResponse: true
 
     # pipe for all swagger-node controllers
     swagger_controllers:

@@ -133,7 +133,10 @@ module.exports = function() {
           res.body.message.should.eql('Validation errors');
           res.body.errors.should.be.an.Array;
           res.body.errors[0].should.have.properties({
-            message: 'Not a valid integer: Scott'
+            code: 'INVALID_REQUEST_PARAMETER',
+            in: 'query',
+            message: 'Invalid parameter (name): Expected type integer but found type string',
+            name: 'name'
           });
           done();
         });
@@ -152,10 +155,10 @@ module.exports = function() {
           res.body.message.should.eql('Validation errors');
           res.body.errors.should.be.an.Array;
           res.body.errors[0].should.have.properties({
-            message: 'Request validation failed: Parameter (name) value is required but was not provided',
-            code: 'REQUIRED',
-            failedValidation: true,
-            path: [ 'paths', '/hello_form', 'get', 'parameters', '0' ]
+            code: 'INVALID_REQUEST_PARAMETER',
+            in: 'formData',
+            message: 'Invalid parameter (name): Value is required but was not provided',
+            name: 'name'
           });
           done();
         });
@@ -171,7 +174,10 @@ module.exports = function() {
           should.not.exist(err);
           res.body.message.should.eql('Validation errors');
           res.body.errors.should.be.an.Array;
-          res.body.errors[0].should.eql('Invalid content type (text/plain). These are valid: application/json');
+          res.body.errors[0].should.have.properties({
+            code: 'INVALID_CONTENT_TYPE',
+            message: 'Invalid Content-Type (text/plain).  These are supported: application/json'
+          });
           done();
         });
     });
