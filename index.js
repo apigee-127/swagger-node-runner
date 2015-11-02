@@ -186,9 +186,9 @@ function Runner(appJsConfig, cb) {
   sway.create(swayOpts)
     .then(function(api) {
 
-      api.validate();
+      var validateResult = api.validate();
 
-      var errors = api.getLastErrors();
+      var errors = validateResult.errors;
       if (errors && errors.length > 0) {
         if (!self.config.swagger.enforceUniqueOperationId) {
           errors = errors.filter(function(err) {
@@ -207,7 +207,7 @@ function Runner(appJsConfig, cb) {
         }
       }
 
-      var warnings = api.getLastWarnings();
+      var warnings = validateResult.warnings;
       if (warnings && warnings.length > 0) {
         var warningText = JSON.stringify(warnings);
         if (self.config.swagger.startWithWarnings) {
