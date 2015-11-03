@@ -1,16 +1,19 @@
 'use strict';
 
 /*
-Runner:
+Runner properties:
   config
   swagger
   api  // (sway)
   connectMiddleware()
   resolveAppPath()
-  swaggerSecurityHandlers
+  securityHandlers
   bagpipes
 
-config:
+Runner events:
+ responseValidationError
+
+config properties:
   appRoot
   mockMode
   configDir
@@ -29,6 +32,8 @@ var path = require('path');
 var sway = require('sway');
 var debug = require('debug')('swagger');
 var bagpipes = require('bagpipes');
+var EventEmitter = require('events');
+var util = require('util');
 
 var SWAGGER_SELECTED_PIPE = 'x-swagger-pipe';
 var SWAGGER_ROUTER_CONTROLLER = 'x-swagger-router-controller';
@@ -57,7 +62,11 @@ function create(config, cb) {
   new Runner(config, cb);
 }
 
+util.inherits(Runner, EventEmitter);
+
 function Runner(appJsConfig, cb) {
+
+  EventEmitter.call(this);
 
   this.resolveAppPath = function resolveAppPath(to) {
     return path.resolve(appJsConfig.appRoot, to);
@@ -221,7 +230,7 @@ function Runner(appJsConfig, cb) {
 
       self.api = api;
       self.swagger = api.definition;
-      self.swaggerSecurityHandlers = appJsConfig.swaggerSecurityHandlers;
+      self.securityHandlers = appJsConfig.securityHandlers || appJsConfig.swaggerSecurityHandlers; // legacy name
       self.bagpipes = createPipes(self);
 
       cb(null, self);

@@ -225,6 +225,34 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /invalid_response_code:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello
+      responses:
+        200:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /invalid_header:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
+      responses:
+        200:
+          description: Whatever
+          headers:
+            content-type:
+              type: integer
+          schema: {}
 definitions:
   HelloWorldResponse:
     required:

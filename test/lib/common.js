@@ -250,7 +250,7 @@ module.exports = function() {
     });
   });
 
-  describe('raw bagpipe', function() {
+  describe('non-controller routing', function() {
 
     describe('/swagger should respond', function() {
 
@@ -308,29 +308,118 @@ module.exports = function() {
           });
       });
     });
+
+    it('empty path', function(done) {
+
+      request(this.app)
+        .put('/empty_path')
+        .set('Accept', 'application/json')
+        .expect(405)
+        .end(function(err, res) {
+          should.not.exist(err);
+          done();
+        });
+    });
+
+    it('no controller specified', function(done) {
+
+      request(this.app)
+        .get('/no_router_controller')
+        .set('Accept', 'application/json')
+        .expect(405)
+        .end(function(err, res) {
+          should.not.exist(err);
+          done();
+        });
+    });
   });
 
-  it('empty path', function(done) {
+  describe('response validation listeners', function() {
 
-    request(this.app)
-      .put('/empty_path')
-      .set('Accept', 'application/json')
-      .expect(405)
-      .end(function(err, res) {
-        should.not.exist(err);
+    it('should receive invalid response code errors', function(done) {
+
+      this.runner.once('responseValidationError', function(validationResponse, req, res) {
+        should.exist(validationResponse);
+        should.exist(req);
+        should.exist(res);
+        validationResponse.errors.should.be.an.Array;
+        validationResponse.errors.length.should.eql(1);
+        validationResponse.errors[0].should.have.properties({
+          code: 'INVALID_RESPONSE_CODE'
+        });
         done();
       });
-  });
 
-  it('no controller specified', function(done) {
+      request(this.app)
+        .get('/invalid_response_code')
+        .set('Accept', 'application/json')
+        .expect(500)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+        });
+    });
 
-    request(this.app)
-      .get('/no_router_controller')
-      .set('Accept', 'application/json')
-      .expect(405)
-      .end(function(err, res) {
-        should.not.exist(err);
+    it('should receive invalid header errors', function(done) {
+
+      this.runner.once('responseValidationError', function(validationResponse, req, res) {
+        should.exist(validationResponse);
+        should.exist(req);
+        should.exist(res);
+        validationResponse.errors.should.be.an.Array;
+        validationResponse.errors.length.should.eql(1);
+        validationResponse.errors[0].should.eql({
+          code: 'INVALID_RESPONSE_HEADER',
+          errors:
+          [ { code: 'INVALID_TYPE',
+            message: 'Expected type integer but found type string',
+            path: [] } ],
+            message: 'Invalid header (content-type): Expected type integer but found type string',
+          name: 'content-type',
+          path: []
+        });
         done();
       });
+
+      request(this.app)
+        .get('/invalid_header')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+        });
+    });
+
+    it('should receive schema validation errors', function(done) {
+
+      this.runner.once('responseValidationError', function(validationResponse, req, res) {
+        should.exist(validationResponse);
+        should.exist(req);
+        should.exist(res);
+        validationResponse.errors.should.be.an.Array;
+        validationResponse.errors.length.should.eql(1);
+        validationResponse.errors[0].should.eql({
+          code: 'INVALID_RESPONSE_BODY',
+          errors:
+            [ { code: 'OBJECT_MISSING_REQUIRED_PROPERTY',
+              message: 'Missing required property: message',
+              path: [],
+              schemaId: undefined } ],
+          message: 'Invalid body: Missing required property: message',
+          path: []
+        });
+        done();
+      });
+
+      request(this.app)
+        .get('/hello')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+        });
+    });
   });
 };
