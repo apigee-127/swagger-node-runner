@@ -22,6 +22,10 @@ describe('restify_middleware', function() {
       createServer.call(this, TEST_PROJECT_CONFIG, done);
     });
 
+    after(function(done) {
+      this.app.close(done);
+    });
+
     require('./common')();
   });
 
@@ -29,6 +33,10 @@ describe('restify_middleware', function() {
 
     before(function(done) {
       createServer.call(this, MOCK_CONFIG, done);
+    });
+
+    after(function(done) {
+      this.app.close(done);
     });
 
     require('./common_mock')();

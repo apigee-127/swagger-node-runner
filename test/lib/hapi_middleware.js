@@ -20,18 +20,25 @@ describe('hapi_middleware', function() {
       createServer.call(this, TEST_PROJECT_CONFIG, done);
     });
 
+    after(function(done) {
+      this.app.stop(done);
+    });
+
     require('./common')();
   });
 
-  // todo: fix and reenable
-  //describe('mock', function() {
-  //
-  //  before(function(done) {
-  //    createServer.call(this, MOCK_CONFIG, done);
-  //  });
-  //
-  //  require('./common_mock')();
-  //});
+  describe('mock', function() {
+
+    before(function(done) {
+      createServer.call(this, MOCK_CONFIG, done);
+    });
+
+    after(function(done) {
+      this.app.stop(done);
+    });
+
+    require('./common_mock')();
+  });
 });
 
 function createServer(config, done) {
