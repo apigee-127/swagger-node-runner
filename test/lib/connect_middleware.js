@@ -9,104 +9,40 @@ var SwaggerRunner = require('../..');
 
 var TEST_PROJECT_ROOT = path.resolve(__dirname, '..', 'assets', 'project');
 var TEST_PROJECT_CONFIG = { appRoot: TEST_PROJECT_ROOT };
+var MOCK_CONFIG = {
+  appRoot: TEST_PROJECT_ROOT,
+  bagpipes: {_router: {mockMode: true}}
+};
 
 describe('connect_middleware', function() {
 
-  before(function(done) {
-    this.app = require('connect')();
-    var self = this;
-    SwaggerRunner.create(TEST_PROJECT_CONFIG, function(err, r) {
-      if (err) { return done(err); }
-      self.runner = r;
-      var middleware = self.runner.connectMiddleware();
-      middleware.register(self.app);
-      done();
+  describe('standard', function() {
+
+    before(function(done) {
+      createServer.call(this, TEST_PROJECT_CONFIG, done);
     });
+
+    require('./common')();
   });
 
-  require('./common')();
+  describe('mock', function() {
 
+    before(function(done) {
+      createServer.call(this, MOCK_CONFIG, done);
+    });
+
+    require('./common_mock')();
+  });
 });
 
-describe('mock', function() {
-
-  before(function(done) {
-    this.app = require('connect')();
-    var self = this;
-    var config = {
-      appRoot: TEST_PROJECT_ROOT,
-      bagpipes: { _router: { mockMode: true }}
-    };
-    SwaggerRunner.create(config, function(err, r) {
-      if (err) { return done(err); }
-      self.runner = r;
-      var middleware = self.runner.connectMiddleware();
-      middleware.register(self.app);
-      done();
-    });
+function createServer(config, done) {
+  this.app = require('connect')();
+  var self = this;
+  SwaggerRunner.create(config, function(err, r) {
+    if (err) { return done(err); }
+    self.runner = r;
+    var middleware = self.runner.connectMiddleware();
+    middleware.register(self.app);
+    done();
   });
-
-  it('should return from mock controller handler if exists', function(done) {
-    request(this.app)
-      .get('/hello_with_mock')
-      .set('Accept', 'application/json')
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end(function(err, res) {
-        should.not.exist(err);
-        res.body.should.eql({ message: 'mocking from the controller!'});
-        done();
-      });
-  });
-
-  it('should return example if exists and no mock controller', function(done) {
-    request(this.app)
-      .get('/hello')
-      .set('Accept', 'application/json')
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end(function(err, res) {
-        should.not.exist(err);
-        res.body.should.eql({ message: 'An example message' });
-        done();
-      });
-  });
-
-  it('should return example if exists based on accept header', function(done) {
-
-    var YAML = require('js-yaml');
-    var msg = YAML.safeDump({ message: 'A yaml example' }, { indent: 2 });
-
-    request(this.app)
-      .get('/hello')
-      .set('Accept', 'application/x-yaml')
-      .expect(200)
-      .expect('Content-Type', 'application/x-yaml')
-      .end(function(err, res) {
-        should.not.exist(err);
-        res.text.should.be.a.String;
-        res.text.should.eql(msg);
-        done();
-      });
-  });
-
-  it('should return example based on _mockReturnStatus header', function(done) {
-    request(this.app)
-      .get('/hello_form')
-      .send('name=Scott')
-      .set('Accept', 'application/json')
-      .set('_mockReturnStatus', '201')
-      .expect(201)
-      .expect('Content-Type', /json/)
-      .end(function(err, res) {
-        should.not.exist(err);
-        res.body.should.not.eql({ message: 'An example message' });
-        res.body.should.not.eql({ message: 'mocking from the controller!'});
-        res.body.should.have.property('string');
-        res.body.string.should.be.a.String;
-        res.body.should.have.property('integer');
-        res.body.integer.should.be.a.Integer;
-        done();
-      });
-  });
-});
+}

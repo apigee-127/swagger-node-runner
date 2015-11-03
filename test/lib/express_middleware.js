@@ -9,21 +9,39 @@ var SwaggerRunner = require('../..');
 
 var TEST_PROJECT_ROOT = path.resolve(__dirname, '..', 'assets', 'project');
 var TEST_PROJECT_CONFIG = { appRoot: TEST_PROJECT_ROOT };
+var MOCK_CONFIG = {
+  appRoot: TEST_PROJECT_ROOT,
+  bagpipes: {_router: {mockMode: true}}
+};
 
 describe('express_middleware', function() {
 
-  before(function(done) {
-    this.app = require('express')();
-    var self = this;
-    SwaggerRunner.create(TEST_PROJECT_CONFIG, function(err, r) {
-      if (err) { return done(err); }
-      self.runner = r;
-      var middleware = self.runner.expressMiddleware();
-      middleware.register(self.app);
-      done();
+  describe('standard', function() {
+    before(function(done) {
+      createServer.call(this, TEST_PROJECT_CONFIG, done);
     });
+
+    require('./common')();
   });
 
-  require('./common')();
+  describe('mock', function() {
 
+    before(function(done) {
+      createServer.call(this, MOCK_CONFIG, done);
+    });
+
+    require('./common_mock')();
+  });
 });
+
+function createServer(config, done) {
+  this.app = require('express')();
+  var self = this;
+  SwaggerRunner.create(config, function(err, r) {
+    if (err) { return done(err); }
+    self.runner = r;
+    var middleware = self.runner.expressMiddleware();
+    middleware.register(self.app);
+    done();
+  });
+}
