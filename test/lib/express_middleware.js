@@ -38,7 +38,10 @@ function createServer(config, done) {
   this.app = require('express')();
   var self = this;
   SwaggerRunner.create(config, function(err, r) {
-    if (err) { return done(err); }
+    if (err) {
+      console.error(err);
+      return done(err);
+    }
     self.runner = r;
     var middleware = self.runner.expressMiddleware();
     middleware.register(self.app);

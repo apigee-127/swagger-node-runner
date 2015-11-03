@@ -39,7 +39,10 @@ function createServer(config, done) {
   this.app = require('restify').createServer();
   var self = this;
   SwaggerRunner.create(config, function(err, r) {
-    if (err) { return done(err); }
+    if (err) {
+      console.error(err);
+      return done(err);
+    }
     self.runner = r;
     var middleware = self.runner.restifyMiddleware();
     middleware.register(self.app);

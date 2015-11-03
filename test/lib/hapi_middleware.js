@@ -15,7 +15,7 @@ var MOCK_CONFIG = {
 
 describe('hapi_middleware', function() {
 
-  describe('stanard', function() {
+  describe('standard', function() {
     before(function(done) {
       createServer.call(this, TEST_PROJECT_CONFIG, done);
     });
@@ -39,7 +39,10 @@ function createServer(config, done) {
   this.app = new hapi.Server();
   var self = this;
   SwaggerRunner.create(config, function(err, r) {
-    if (err) { return done(err); }
+    if (err) {
+      console.error(err);
+      return done(err);
+    }
     self.runner = r;
     var middleware = self.runner.hapiMiddleware();
 
