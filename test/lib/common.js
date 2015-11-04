@@ -353,7 +353,7 @@ module.exports = function() {
       request(this.app)
         .get('/invalid_response_code')
         .set('Accept', 'application/json')
-        .expect(500)
+        .expect(200)
         .expect('Content-Type', /json/)
         .end(function(err, res) {
           should.not.exist(err);

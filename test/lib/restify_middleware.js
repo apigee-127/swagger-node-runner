@@ -23,7 +23,11 @@ describe('restify_middleware', function() {
     });
 
     after(function(done) {
-      this.app.close(done);
+      try {
+        this.app.close(done);
+      } catch (err) {
+        done();
+      }
     });
 
     require('./common')();
@@ -36,7 +40,11 @@ describe('restify_middleware', function() {
     });
 
     after(function(done) {
-      this.app.close(done);
+      try {
+        this.app.close(done);
+      } catch (err) {
+        done();
+      }
     });
 
     require('./common_mock')();

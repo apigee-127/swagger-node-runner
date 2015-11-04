@@ -32,7 +32,7 @@ var path = require('path');
 var sway = require('sway');
 var debug = require('debug')('swagger');
 var bagpipes = require('bagpipes');
-var EventEmitter = require('events');
+var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
 var SWAGGER_SELECTED_PIPE = 'x-swagger-pipe';

@@ -230,8 +230,14 @@ paths:
     get:
       description: Returns 'Hello' to the caller
       operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
       responses:
-        200:
+        333:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
