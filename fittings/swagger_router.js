@@ -59,7 +59,7 @@ module.exports = function create(fittingDef, bagpipes) {
 
     if (controller) {
 
-      var operationId = operation.definition['operationId'];
+      var operationId = operation.definition['operationId'] || context.request.method.toLowerCase();
       var controllerFunction = controller[operationId];
 
       if (controllerFunction && typeof controllerFunction === 'function') {

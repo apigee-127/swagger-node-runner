@@ -5,7 +5,8 @@ var util = require('util');
 module.exports = {
   hello: hello,
   hello_body: hello_body,
-  hello_file: hello_file
+  hello_file: hello_file,
+  get: hello
 };
 
 function hello(req, res) {

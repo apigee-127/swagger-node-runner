@@ -23,6 +23,19 @@ module.exports = function() {
         });
     });
 
+    it('should execute without operationId', function(done) {
+      request(this.app)
+        .get('/hello_no_operationid')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+          res.body.should.eql('Hello, stranger!');
+          done();
+        });
+    });
+
     it('should get query parameter', function(done) {
       request(this.app)
         .get('/hello?name=Scott')
