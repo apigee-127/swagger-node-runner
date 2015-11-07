@@ -33,7 +33,7 @@ module.exports = function create(fittingDef, bagpipes) {
 
     var req = context.request;
     parseRequest(req, fittingDef, function(err) {
-      if (err) { return next(err); }
+      if (err) { /* istanbul ignore next */ return next(err); }
 
       var params = req.swagger.params = {};
       req.swagger.operation.parameterObjects.forEach(function(parameter) {
@@ -86,7 +86,7 @@ function parseRequest(req, fittingDef, cb) {
       if (multFields.length === 0) { return cb(); }
       var mult = require('multer')(fittingDef.multerOptions);
       mult.fields(multFields)(req, res, function(err) {
-        if (err) { return cb(err); }
+        if (err) { /* istanbul ignore next */ return cb(err); }
         if (req.files) {
           _.forEach(req.files, function(file, name) {
             req.files[name] = (Array.isArray(file) && file.length === 1) ? file[0] : file;
@@ -128,7 +128,7 @@ function parseRequest(req, fittingDef, cb) {
 }
 
 // hack: avoids body-parser issue: https://github.com/expressjs/body-parser/issues/128
-var typeis = require('type-is');
+var typeis = require('type-is').is;
 function skipParse(options, req) {
-  return !(typeof options.type == 'function' || Boolean(typeis(req, options.type)));
+  return typeof options.type !== 'function' && !Boolean(typeis(req, options.type));
 }
