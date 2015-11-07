@@ -92,6 +92,21 @@ module.exports = function() {
         });
     });
 
+    it('should get text body', function(done) {
+      request(this.app)
+        .get('/hello_text_body')
+        .send('Scott')
+        .type('text')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+          res.body.should.eql('Hello, Scott!');
+          done();
+        });
+    });
+
     it('should get a 404 for unknown path and operation', function(done) {
       request(this.app)
         .get('/not_there')

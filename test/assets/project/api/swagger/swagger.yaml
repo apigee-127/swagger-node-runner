@@ -153,13 +153,13 @@ paths:
       description: Returns 'Hello' to the caller
       operationId: hello_text_body
       parameters:
-        - name: nameRequest
+        - name: name
           in: body
           description: The name of the person to whom to say hello
           schema:
-            $ref: "#/definitions/NameRequest"
+            type: string
       responses:
-        "200":
+        200:
           description: Success
           schema:
             $ref: "#/definitions/HelloWorldResponse"
