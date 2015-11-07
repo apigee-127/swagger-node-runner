@@ -23,15 +23,30 @@ paths:
           required: false
           type: string
       responses:
-        "200":
+        200:
           description: Success
           schema:
+            type: object
             $ref: "#/definitions/HelloWorldResponse"
           examples:
             application/json:
               message: 'An example message'
             application/x-yaml:
               message: 'A yaml example'
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /multiple_writes:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: multiple_writes
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
         default:
           description: Error
           schema:
@@ -47,7 +62,7 @@ paths:
           required: false
           type: string
       responses:
-        "200":
+        200:
           description: Success
           schema:
             $ref: "#/definitions/HelloWorldResponse"
@@ -67,7 +82,7 @@ paths:
           required: false
           type: string
       responses:
-        "200":
+        200:
           description: Success
           schema:
             $ref: "#/definitions/HelloWorldResponse"
@@ -89,7 +104,7 @@ paths:
           required: true
           type: string
       responses:
-        "200":
+        200:
           description: Success
           schema:
             $ref: "#/definitions/HelloWorldResponse"
@@ -114,7 +129,7 @@ paths:
           schema:
             $ref: "#/definitions/NameRequest"
       responses:
-        "200":
+        200:
           description: Success
           schema:
             $ref: "#/definitions/HelloWorldResponse"
@@ -139,7 +154,7 @@ paths:
           required: true
           type: file
       responses:
-        "200":
+        200:
           description: Success
           schema:
             $ref: "#/definitions/HelloWorldResponse"
@@ -179,7 +194,7 @@ paths:
           required: false
           type: integer
       responses:
-        "200":
+        200:
           description: Success
           schema:
             $ref: "#/definitions/HelloWorldResponse"
@@ -193,7 +208,7 @@ paths:
       description: Returns 'Hello' to the caller
       operationId: hello_mock
       responses:
-        "200":
+        200:
           description: Success
           schema:
             $ref: "#/definitions/HelloWorldResponse"
