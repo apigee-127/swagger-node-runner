@@ -41,7 +41,7 @@ module.exports = function create(fittingDef, bagpipes) {
 
     } else {
 
-      debug('loading controller %s from fs: %s', controllerName);
+      debug('loading controller %s from fs: %s', controllerName, controllersDirs);
       for (var i = 0; i < controllersDirs.length; i++) {
         var controllerPath = path.resolve(controllersDirs[i], controllerName);
         try {

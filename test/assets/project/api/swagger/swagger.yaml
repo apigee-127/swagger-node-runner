@@ -295,6 +295,7 @@ paths:
           schema: {}
 definitions:
   HelloWorldResponse:
+    type: object
     required:
       - message
     properties:

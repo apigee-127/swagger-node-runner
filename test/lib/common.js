@@ -423,36 +423,36 @@ module.exports = function() {
         });
     });
 
-    //it('should receive schema validation errors', function(done) {
-    //
-    //  this.runner.once('responseValidationError', function(validationResponse, req, res) {
-    //    should.exist(validationResponse);
-    //    should.exist(req);
-    //    should.exist(res);
-    //    validationResponse.errors.should.be.an.Array;
-    //    validationResponse.errors.length.should.eql(1);
-    //    validationResponse.errors[0].should.eql({
-    //      code: 'INVALID_RESPONSE_BODY',
-    //      errors:
-    //        [ { code: 'OBJECT_MISSING_REQUIRED_PROPERTY',
-    //          message: 'Missing required property: message',
-    //          path: [],
-    //          schemaId: undefined } ],
-    //      message: 'Invalid body: Missing required property: message',
-    //      path: []
-    //    });
-    //    done();
-    //  });
-    //
-    //  request(this.app)
-    //    .get('/hello')
-    //    .set('Accept', 'application/json')
-    //    .expect(200)
-    //    .expect('Content-Type', /json/)
-    //    .end(function(err, res) {
-    //      should.not.exist(err);
-    //    });
-    //});
+    it('should receive schema validation errors', function(done) {
+
+      this.runner.once('responseValidationError', function(validationResponse, req, res) {
+        should.exist(validationResponse);
+        should.exist(req);
+        should.exist(res);
+        validationResponse.errors.should.be.an.Array;
+        validationResponse.errors.length.should.eql(1);
+        validationResponse.errors[0].should.eql({
+          code: 'INVALID_RESPONSE_BODY',
+          errors:
+            [ { code: 'INVALID_TYPE',
+              message: 'Expected type object but found type string',
+              path: [],
+              schemaId: undefined } ],
+          message: 'Invalid body: Expected type object but found type string',
+          path: []
+        });
+        done();
+      });
+
+      request(this.app)
+        .get('/hello')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+        });
+    });
 
     it('should not validate multiple writes', function(done) {
 
