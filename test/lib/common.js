@@ -213,68 +213,111 @@ module.exports = function() {
 
   describe('security', function() {
 
-    it('should deny when missing handler', function(done) {
-      request(this.app)
-        .get('/hello_secured')
-        .set('Accept', 'application/json')
-        .expect(403)
-        .expect('Content-Type', /json/)
-        .end(function(err, res) {
-          should.not.exist(err);
+    describe('loaded from path', function() {
 
-          res.body.should.have.properties({
-            code: 'server_error',
-            message: 'Unknown security handler: api_key'
+      it('should deny when swagger-tools handler denies', function(done) {
+
+        request(this.app)
+          .get('/hello_secured')
+          .set('Accept', 'application/json')
+          .expect(403)
+          .expect('Content-Type', /json/)
+          .end(function(err, res) {
+            should.not.exist(err);
+
+            res.body.should.have.properties({
+              code: 'server_error',
+              message: 'no way!'
+            });
+
+            done();
           });
+      });
 
-          done();
-        });
+      it('should allow when swagger-tools handler accepts', function(done) {
+
+        request(this.app)
+          .get('/hello_secured?name=Scott')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function(err, res) {
+            should.not.exist(err);
+            res.body.should.eql('Hello, Scott!');
+
+            done();
+          });
+      });
     });
 
-    it('should deny when swagger-tools handler denies', function(done) {
+    describe('explicit in config', function() {
 
-      this.runner.securityHandlers = {
-        api_key: function(req, secDef, key, cb) {
-          cb(new Error('no way!'));
-        }
-      };
+      it('should deny when missing handler', function(done) {
 
-      request(this.app)
-        .get('/hello_secured')
-        .set('Accept', 'application/json')
-        .expect(403)
-        .expect('Content-Type', /json/)
-        .end(function(err, res) {
-          should.not.exist(err);
+        this.runner.securityHandlers = { };
 
-          res.body.should.have.properties({
-            code: 'server_error',
-            message: 'no way!'
+        request(this.app)
+          .get('/hello_secured')
+          .set('Accept', 'application/json')
+          .expect(403)
+          .expect('Content-Type', /json/)
+          .end(function(err, res) {
+            should.not.exist(err);
+
+            res.body.should.have.properties({
+              code: 'server_error',
+              message: 'Unknown security handler: api_key'
+            });
+
+            done();
           });
+      });
 
-          done();
-        });
-    });
+      it('should deny when swagger-tools handler denies', function(done) {
 
-    it('should allow when swagger-tools handler accepts', function(done) {
+        this.runner.securityHandlers = {
+          api_key: function(req, secDef, key, cb) {
+            cb(new Error('no way!'));
+          }
+        };
 
-      this.runner.securityHandlers = {
-        api_key: function(req, secDef, key, cb) {
-          cb();
-        }
-      };
+        request(this.app)
+          .get('/hello_secured')
+          .set('Accept', 'application/json')
+          .expect(403)
+          .expect('Content-Type', /json/)
+          .end(function(err, res) {
+            should.not.exist(err);
 
-      request(this.app)
-        .get('/hello_secured')
-        .set('Accept', 'application/json')
-        .expect(200)
-        .expect('Content-Type', /json/)
-        .end(function(err, res) {
-          should.not.exist(err);
-          res.body.should.eql('Hello, stranger!');
+            res.body.should.have.properties({
+              code: 'server_error',
+              message: 'no way!'
+            });
 
-          done();
-        });
+            done();
+          });
+      });
+
+      it('should allow when swagger-tools handler accepts', function(done) {
+
+        this.runner.securityHandlers = {
+          api_key: function(req, secDef, key, cb) {
+            cb();
+          }
+        };
+
+        request(this.app)
+          .get('/hello_secured')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function(err, res) {
+            should.not.exist(err);
+            res.body.should.eql('Hello, stranger!');
+
+            done();
+          });
+      });
     });
   });
 

@@ -4,16 +4,28 @@ var debug = require('debug')('swagger:swagger_security');
 var async = require('async');
 var helpers = require('../lib/helpers');
 var _ = require('lodash');
+var path = require('path');
 
 module.exports = function create(fittingDef, bagpipes) {
 
   debug('config: %j', fittingDef);
 
+  var runner = bagpipes.config.swaggerNodeRunner;
+
+  if (fittingDef.securityHandlersModule && !runner.config.securityHandlers) {
+
+    var appRoot = runner.config.swagger.appRoot;
+    var handlersPath = path.resolve(appRoot, fittingDef.securityHandlersModule);
+
+    runner.securityHandlers = require(handlersPath);
+    debug('loaded handlers: %s from: %s', Object.keys(runner.securityHandlers), handlersPath);
+  }
+
   return function swagger_security(context, cb) {
 
     debug('exec');
 
-    var handlers = bagpipes.config.swaggerNodeRunner.securityHandlers || {};
+    var handlers = runner.securityHandlers || {};
     var req = context.request;
     var operation = req.swagger.operation;
 

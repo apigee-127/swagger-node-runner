@@ -39,12 +39,7 @@ var SWAGGER_SELECTED_PIPE = 'x-swagger-pipe';
 var SWAGGER_ROUTER_CONTROLLER = 'x-swagger-router-controller';
 var DEFAULT_FITTINGS_DIRS = [ 'api/fittings' ];
 var DEFAULT_VIEWS_DIRS = [ 'api/views' ];
-var DEFAULT_APP_PATHS = { // relative to appRoot
-  swaggerFile: 'api/swagger/swagger.yaml',
-  controllersDir: 'api/controllers',
-  mockControllersDir: 'api/mocks',
-  helpers: 'api/helpers'
-};
+var DEFAULT_SWAGGER_FILE = 'api/swagger/swagger.yaml'; // relative to appRoot
 
 /*
 SwaggerNode config priority:
@@ -188,7 +183,7 @@ function Runner(appJsConfig, cb) {
 
   var self = this;
   var swayOpts = {
-    definition: appJsConfig.swagger || appJsConfig.swaggerFile || this.resolveAppPath(DEFAULT_APP_PATHS.swaggerFile)
+    definition: appJsConfig.swagger || appJsConfig.swaggerFile || this.resolveAppPath(DEFAULT_SWAGGER_FILE)
   };
 
   // sway uses Promises
@@ -275,10 +270,14 @@ function createPipes(self) {
         name: 'swagger_validator',
         validateReponse: true
       },
+      _swagger_security: {
+        name: 'swagger_security',
+        securityHandlersModule: 'api/helpers/securityHandlers'
+      },
       swagger_controllers: [
         'cors',
         'swagger_params_parser',
-        'swagger_security',
+        '_swagger_security',
         '_swagger_validate',
         'express_compatibility',
         '_router'
