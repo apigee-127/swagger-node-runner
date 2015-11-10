@@ -270,14 +270,10 @@ function createPipes(self) {
         name: 'swagger_validator',
         validateReponse: true
       },
-      _swagger_security: {
-        name: 'swagger_security',
-        securityHandlersModule: 'api/helpers/securityHandlers'
-      },
       swagger_controllers: [
         'cors',
         'swagger_params_parser',
-        '_swagger_security',
+        'swagger_security',
         '_swagger_validate',
         'express_compatibility',
         '_router'
