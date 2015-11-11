@@ -479,8 +479,7 @@ module.exports = function() {
           errors:
             [ { code: 'INVALID_TYPE',
               message: 'Expected type object but found type string',
-              path: [],
-              schemaId: undefined } ],
+              path: [] } ],
           message: 'Invalid body: Expected type object but found type string',
           path: []
         });
