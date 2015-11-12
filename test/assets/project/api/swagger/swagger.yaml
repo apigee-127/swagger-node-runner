@@ -262,6 +262,7 @@ paths:
   /invalid_response_code:
     x-swagger-router-controller: hello_world
     get:
+      x-hidden: true
       description: Returns 'Hello' to the caller
       operationId: hello
       parameters:
@@ -276,6 +277,7 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
   /invalid_header:
+    x-private: true
     x-swagger-router-controller: hello_world
     get:
       description: Returns 'Hello' to the caller

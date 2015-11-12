@@ -7,6 +7,9 @@ var _ = require('lodash');
 // default filter just drops all the x- labels
 var DROP_SWAGGER_EXTENSIONS = /^(?!x-.*)/;
 
+// default filter drops anything labeled x-private
+var X_PRIVATE = ['x-private'];
+
 module.exports = function create(fittingDef, bagpipes) {
 
   debug('config: %j', fittingDef);
@@ -16,7 +19,8 @@ module.exports = function create(fittingDef, bagpipes) {
     filter = new RegExp(fittingDef.filter);
   }
   debug('swagger doc filter: %s', filter);
-  var filteredSwagger = filterKeysRecursive(bagpipes.config.swaggerNodeRunner.swagger, filter);
+  var privateTags = fittingDef.privateTags || X_PRIVATE;
+  var filteredSwagger = filterKeysRecursive(bagpipes.config.swaggerNodeRunner.swagger, filter, privateTags);
 
   if (!filteredSwagger) { return next(null, ''); }
 
@@ -41,15 +45,25 @@ module.exports = function create(fittingDef, bagpipes) {
   }
 };
 
-function filterKeysRecursive(object, regex) {
+function filterKeysRecursive(object, dropTagRegex, privateTags) {
   if (_.isPlainObject(object)) {
-    var result = {};
-    _.each(object, function(value, key) {
-      if (regex.test(key)) {
-        result[key] = filterKeysRecursive(value, regex);
-      }
-    });
-    return result;
+    if (_.any(privateTags, function(tag) { return object[tag]; })) {
+      object = undefined;
+    } else {
+      var result = {};
+      _.each(object, function(value, key) {
+        if (dropTagRegex.test(key)) {
+          var v = filterKeysRecursive(value, dropTagRegex, privateTags);
+          if (v !== undefined) {
+            result[key] = v;
+          } else {
+            debug('dropping object at %s', key);
+            delete(result[key]);
+          }
+        }
+      });
+      return result;
+    }
   }
   return object;
 }
