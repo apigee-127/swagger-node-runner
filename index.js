@@ -186,11 +186,14 @@ function Runner(appJsConfig, cb) {
     definition: appJsConfig.swagger || appJsConfig.swaggerFile || this.resolveAppPath(DEFAULT_SWAGGER_FILE)
   };
 
+  debug('initializing Sway');
   // sway uses Promises
   sway.create(swayOpts)
     .then(function(api) {
 
+      debug('validating api');
       var validateResult = api.validate();
+      debug('done validating api. errors: %d, warnings: %d', validateResult.errors.length, validateResult.warnings.length);
 
       var errors = validateResult.errors;
       if (errors && errors.length > 0) {
