@@ -15,7 +15,7 @@ module.exports = function create(fittingDef, bagpipes) {
 
   _.defaults(fittingDef, {
     jsonOptions: {
-      type: ['json', '*+json']
+      type: ['json', 'application/*+json']
     },
     urlencodedOptions: {
       extended: false
