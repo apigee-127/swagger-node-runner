@@ -127,6 +127,16 @@ module.exports = function() {
         });
     });
 
+    it('should not get a 405 for known path and undeclared options operation', function(done) {
+      request(this.app)
+        .options('/hello')
+        .expect(204)
+        .end(function(err, res) {
+          should.not.exist(err);
+          done();
+        });
+    });
+
     it('should get a 500 for missing controller', function(done) {
       request(this.app)
         .put('/hello_missing_controller')
