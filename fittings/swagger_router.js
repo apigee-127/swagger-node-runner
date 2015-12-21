@@ -49,7 +49,7 @@ module.exports = function create(fittingDef, bagpipes) {
           controllerFunctionsCache[controllerName] = controller;
           debug('controller found', controllerPath);
         } catch (err) {
-          if (!mockMode && err.code !== 'MODULE_NOT_FOUND' && i === controllersDirs.length - 1) {
+          if (!mockMode && i === controllersDirs.length - 1) {
             return cb(err);
           }
           debug('controller not in', controllerPath);
