@@ -44,6 +44,7 @@
     "mocha-lcov-reporter": "^1.0.0",
     "restify": "^4.0.3",
     "should": "^7.1.0",
+    "sinon": "^1.17.2",
     "supertest": "^1.1.0"
   },
   "scripts": {
