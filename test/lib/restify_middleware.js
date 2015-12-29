@@ -4,6 +4,7 @@ var should = require('should');
 var request = require('supertest');
 var path = require('path');
 var _ = require('lodash');
+var sinon = require('sinon');
 
 var SwaggerRunner = require('../..');
 
@@ -34,9 +35,25 @@ describe('restify_middleware', function() {
   });
 
   describe('mock', function() {
+    var afterEvent;
 
     before(function(done) {
       createServer.call(this, MOCK_CONFIG, done);
+      afterEvent = sinon.spy();
+      this.app.on('after', afterEvent);
+    });
+
+    describe('after event', function () {
+      it('should been emitted', function (done) {
+        request(this.app)
+          .get('/hello')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end(function(err, res) {
+            sinon.assert.called(afterEvent);
+            done();
+          });
+      });
     });
 
     after(function(done) {
