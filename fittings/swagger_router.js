@@ -48,6 +48,7 @@ module.exports = function create(fittingDef, bagpipes) {
           controller = require(controllerPath);
           controllerFunctionsCache[controllerName] = controller;
           debug('controller found', controllerPath);
+          break;
         } catch (err) {
           if (!mockMode && i === controllersDirs.length - 1) {
             return cb(err);
