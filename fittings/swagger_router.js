@@ -81,12 +81,12 @@ module.exports = function create(fittingDef, bagpipes) {
       var statusCode = parseInt(context.request.get('_mockreturnstatus')) || 200;
 
       var mimetype = context.request.get('accept') || 'application/json';
-      var mock = operation.getResponseExample(statusCode, mimetype);
+      var mock = operation.getResponse(statusCode).getExample(mimetype);
 
       if (mock) {
         debug('returning mock example value', mock);
       } else {
-        mock = operation.getResponseSample(statusCode);
+        mock = operation.getResponse(statusCode).getSample();
         debug('returning mock sample value', mock);
       }
 
