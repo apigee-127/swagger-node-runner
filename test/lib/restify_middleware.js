@@ -1,8 +1,10 @@
 'use strict';
 
 var should = require('should');
+var request = require('supertest');
 var path = require('path');
 var _ = require('lodash');
+var sinon = require('sinon');
 
 var SwaggerRunner = require('../..');
 
@@ -13,28 +15,53 @@ var MOCK_CONFIG = {
   bagpipes: {_router: {mockMode: true}}
 };
 
-describe('hapi_middleware', function() {
+describe('restify_middleware', function() {
 
   describe('standard', function() {
+
     before(function(done) {
       createServer.call(this, TEST_PROJECT_CONFIG, done);
     });
 
     after(function(done) {
-      this.app.stop(done);
+      try {
+        this.app.close(done);
+      } catch (err) {
+        done();
+      }
     });
 
     require('./common')();
   });
 
   describe('mock', function() {
+    var afterEvent;
 
     before(function(done) {
       createServer.call(this, MOCK_CONFIG, done);
+      afterEvent = sinon.spy();
+      this.app.on('after', afterEvent);
+    });
+
+    describe('after event', function () {
+      it('should been emitted', function (done) {
+        request(this.app)
+          .get('/hello')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end(function(err, res) {
+            sinon.assert.called(afterEvent);
+            done();
+          });
+      });
     });
 
     after(function(done) {
-      this.app.stop(done);
+      try {
+        this.app.close(done);
+      } catch (err) {
+        done();
+      }
     });
 
     require('./common_mock')();
@@ -42,8 +69,7 @@ describe('hapi_middleware', function() {
 });
 
 function createServer(config, done) {
-  var hapi = require('hapi');
-  this.app = new hapi.Server();
+  this.app = require('restify').createServer();
   var self = this;
   SwaggerRunner.create(config, function(err, r) {
     if (err) {
@@ -51,16 +77,8 @@ function createServer(config, done) {
       return done(err);
     }
     self.runner = r;
-    var middleware = self.runner.hapiMiddleware();
-
-    self.app.address = function() { return { port: 7236 }; };
-    self.app.connection(self.app.address());
-
-    self.app.register(middleware.plugin, function(err) {
-      if (err) { return console.error('Failed to load plugin:', err); }
-      self.app.start(function() {
-        done();
-      });
-    });
+    var middleware = self.runner.restifyMiddleware();
+    middleware.register(self.app);
+    done();
   });
 }

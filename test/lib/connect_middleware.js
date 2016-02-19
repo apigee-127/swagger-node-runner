@@ -1,54 +1,51 @@
 'use strict';
 
 var should = require('should');
+var request = require('supertest');
 var path = require('path');
 var _ = require('lodash');
 
 var SwaggerRunner = require('../..');
 
-var DEFAULT_PROJECT_ROOT = path.resolve(__dirname, '..', 'assets', 'project');
-var DEFAULT_PROJECT_CONFIG = {
-  appRoot: DEFAULT_PROJECT_ROOT,
-  controllersDirs: [],
-  docEndpoints: { raw: '/swagger' },
-  mapErrorsToJson: true
+var TEST_PROJECT_ROOT = path.resolve(__dirname, '..', 'assets', 'project');
+var TEST_PROJECT_CONFIG = { appRoot: TEST_PROJECT_ROOT };
+var MOCK_CONFIG = {
+  appRoot: TEST_PROJECT_ROOT,
+  bagpipes: {_router: {mockMode: true}}
 };
 
 describe('connect_middleware', function() {
 
-  function shouldBeConnectMiddleware(middleware) {
-    middleware.should.be.a.Function;
-    middleware.length.should.be.within(3, 4);
-  }
+  describe('standard', function() {
 
-  var connectMiddleware, createdRunner;
-
-  before(function(done) {
-
-    SwaggerRunner.create(DEFAULT_PROJECT_CONFIG, function(err, runner) {
-      should.not.exist(err);
-
-      createdRunner = runner;
-      connectMiddleware = runner.connectMiddleware();
-      should.exist(connectMiddleware);
-
-      done();
+    before(function(done) {
+      createServer.call(this, TEST_PROJECT_CONFIG, done);
     });
+
+    require('./common')();
   });
 
-  describe('basics', function() {
+  describe('mock', function() {
 
-    it('should expose runner', function() {
-      connectMiddleware.runner.should.equal(createdRunner);
+    before(function(done) {
+      createServer.call(this, MOCK_CONFIG, done);
     });
 
-    it('should expose middleware function', function() {
-      shouldBeConnectMiddleware(connectMiddleware.middleware());
-    });
-
-    it('should expose register function', function() {
-      should.exist(connectMiddleware.register);
-    });
+    require('./common_mock')();
   });
-
 });
+
+function createServer(config, done) {
+  this.app = require('connect')();
+  var self = this;
+  SwaggerRunner.create(config, function(err, r) {
+    if (err) {
+      console.error(err);
+      return done(err);
+    }
+    self.runner = r;
+    var middleware = self.runner.connectMiddleware();
+    middleware.register(self.app);
+    done();
+  });
+}

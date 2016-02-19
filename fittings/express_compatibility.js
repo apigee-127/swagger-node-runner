@@ -1,11 +1,14 @@
 'use strict';
 
-var debug = require('debug')('pipes:fittings');
+var debug = require('debug')('swagger:cors');
 var Url = require('url');
 
-module.exports = function create(fittingDef) {
+module.exports = function create(fittingDef, bagpipes) {
+
+  debug('config: %j', fittingDef);
 
   return function express_compatibility(context, cb) {
+    debug('exec');
     expressCompatibility(context.request, context.response, cb);
   }
 };

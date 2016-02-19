@@ -1,6 +1,7 @@
 'use strict';
 
 var should = require('should');
+var request = require('supertest');
 var path = require('path');
 var _ = require('lodash');
 
@@ -13,15 +14,11 @@ var MOCK_CONFIG = {
   bagpipes: {_router: {mockMode: true}}
 };
 
-describe('hapi_middleware', function() {
+describe('express_middleware', function() {
 
   describe('standard', function() {
     before(function(done) {
       createServer.call(this, TEST_PROJECT_CONFIG, done);
-    });
-
-    after(function(done) {
-      this.app.stop(done);
     });
 
     require('./common')();
@@ -33,17 +30,12 @@ describe('hapi_middleware', function() {
       createServer.call(this, MOCK_CONFIG, done);
     });
 
-    after(function(done) {
-      this.app.stop(done);
-    });
-
     require('./common_mock')();
   });
 });
 
 function createServer(config, done) {
-  var hapi = require('hapi');
-  this.app = new hapi.Server();
+  this.app = require('express')();
   var self = this;
   SwaggerRunner.create(config, function(err, r) {
     if (err) {
@@ -51,16 +43,8 @@ function createServer(config, done) {
       return done(err);
     }
     self.runner = r;
-    var middleware = self.runner.hapiMiddleware();
-
-    self.app.address = function() { return { port: 7236 }; };
-    self.app.connection(self.app.address());
-
-    self.app.register(middleware.plugin, function(err) {
-      if (err) { return console.error('Failed to load plugin:', err); }
-      self.app.start(function() {
-        done();
-      });
-    });
+    var middleware = self.runner.expressMiddleware();
+    middleware.register(self.app);
+    done();
   });
 }

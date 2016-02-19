@@ -1,9 +1,16 @@
 'use strict';
+<<<<<<< HEAD
 var debug = require('debug')('pipes:fittings');
+=======
+
+var debug = require('debug')('swagger:json_error_handler');
+>>>>>>> upstream/master
 var util = require('util');
 var statuses = require('statuses');
 
-module.exports = function create(fittingDef) {
+module.exports = function create(fittingDef, bagpipes) {
+
+  debug('config: %j', fittingDef);
 
   return function error_handler(context, next) {
 
@@ -11,12 +18,9 @@ module.exports = function create(fittingDef) {
 
     var err = context.error;
 
-
-    debug('jsonErrorHandler: %s', context.error.message);
+    debug('exec: %s', context.error.message);
 
     try {
-      context.headers['Content-Type'] = 'application/json';
-
       if (!context.statusCode || context.statusCode < 400) {
         if (context.response && context.response.statusCode && context.response.statusCode >= 400) {
           context.statusCode = context.response.statusCode;
@@ -28,10 +32,11 @@ module.exports = function create(fittingDef) {
         }
       }
 
-      
-      if (context.statusCode === 500) {
-        console.error(err.stack);
-      }
+	  
+      if (context.statusCode === 500 && !fittingDef.handle500Errors) { return next(err); }
+
+      context.headers['Content-Type'] = 'application/json';
+	  
       delete(context.error);
 	  var production = process.env.NODE_ENV;
       if (production === 'production') {

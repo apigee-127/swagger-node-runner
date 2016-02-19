@@ -23,7 +23,27 @@ paths:
           required: false
           type: string
       responses:
-        "200":
+        200:
+          description: Success
+          schema:
+            type: object
+            $ref: "#/definitions/HelloWorldResponse"
+          examples:
+            application/json:
+              message: 'An example message'
+            application/x-yaml:
+              message: 'A yaml example'
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /multiple_writes:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: multiple_writes
+      responses:
+        200:
           description: Success
           schema:
             $ref: "#/definitions/HelloWorldResponse"
@@ -31,16 +51,281 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /hello_no_operationid:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /hello_secured:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+      security:
+      - api_key: []
+  /hello_form:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello
+      parameters:
+        - name: name
+          in: formData
+          description: The name of the person to whom to say hello
+          required: true
+          type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        "201":
+          description: Success
+          schema:
+            $ref: "#/definitions/Sample201Response"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /hello_body:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello_body
+      parameters:
+        - name: nameRequest
+          in: body
+          description: The name of the person to whom to say hello
+          required: false
+          schema:
+            $ref: "#/definitions/NameRequest"
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /hello_file:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello_file
+      parameters:
+        - name: name
+          in: formData
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
+        - name: example_file
+          in: formData
+          description: An example file
+          required: true
+          type: file
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /hello_text_body:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello_text_body
+      parameters:
+        - name: name
+          in: body
+          description: The name of the person to whom to say hello
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /expect_integer:
+    x-swagger-router-controller: hello_world
+    put:
+      description: Returns 'Hello' to the caller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: integer
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /hello_with_mock:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello_mock
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+          examples:
+            application/json:
+              message: 'An example message'
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /hello_missing_controller:
+    x-swagger-router-controller: missing_controller
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: missing_operation
+      responses:
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /hello_missing_operation:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: missing_operation
+      responses:
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+  /pipe_on_get:
+    get:
+      x-swagger-pipe: swagger_raw
+      responses:
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /empty_path: {}
+  /no_router_controller:
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: no_operation
+      responses:
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /invalid_response_code:
+    x-swagger-router-controller: hello_world
+    get:
+      x-hidden: true
+      description: Returns 'Hello' to the caller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
+      responses:
+        333:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /invalid_header:
+    x-private: true
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
+      responses:
+        200:
+          description: Whatever
+          headers:
+            content-type:
+              type: integer
+          schema: {}
 definitions:
   HelloWorldResponse:
+    type: object
     required:
       - message
     properties:
       message:
         type: string
+  Sample201Response:
+    required:
+      - string
+      - integer
+    properties:
+      string:
+        type: string
+      integer:
+        type: integer
   ErrorResponse:
     required:
       - message
     properties:
       message:
         type: string
+  NameRequest:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
