@@ -2,6 +2,7 @@
 
 var debug = require('debug')('swagger:json_error_handler');
 var util = require('util');
+var statuses = require('statuses');
 
 module.exports = function create(fittingDef, bagpipes) {
 
@@ -27,13 +28,23 @@ module.exports = function create(fittingDef, bagpipes) {
         }
       }
 
+      
       if (context.statusCode === 500 && !fittingDef.handle500Errors) { return next(err); }
 
       context.headers['Content-Type'] = 'application/json';
       Object.defineProperty(err, 'message', { enumerable: true }); // include message property in response
-
       delete(context.error);
-      next(null, JSON.stringify(err));
+
+
+      var production = process.env.NODE_ENV;
+      if (production === 'production') {
+        next(null, JSON.stringify(statuses[context.statusCode]));
+      } else {
+
+        next(null, JSON.stringify(err));
+      }
+
+
     } catch (err2) {
       debug('jsonErrorHandler unable to stringify error: %j', err);
       next();

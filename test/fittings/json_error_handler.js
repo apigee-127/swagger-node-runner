@@ -118,6 +118,7 @@ describe('json_error_handler', function() {
       jsonErrorHandler(context, function(err, output) {
         should.not.exist(err);
         should.not.exist(context.error);
+
         errorString.should.eql(output);
         done();
       });
@@ -160,4 +161,50 @@ describe('json_error_handler', function() {
       });
     });
   });
+
+
+  describe('should protect data when in production', function() {
+    var context;
+    beforeEach(function() {
+
+      var err = new Error('this is a test');
+      err.statusCode = 400;
+      err.message = "This is a test message"
+      err.otherProperty = "Random error property"
+      context = {
+        headers: {},
+        error: err
+      };
+    });
+
+    it('should set headers', function(done) {
+      process.env.NODE_ENV = 'production';
+      jsonErrorHandler(context, function(err) {
+        should.not.exist(err);
+        'application/json'.should.eql(context.headers['Content-Type']);
+        done();
+      });
+    });
+
+    it('should set status code', function(done) {
+        process.env.NODE_ENV = 'production';
+      jsonErrorHandler(context, function(err) {
+        should.not.exist(err);
+        context.statusCode.should.eql(400);
+        done();
+      });
+    });
+
+    it('should NOT emit json properties', function(done) {
+      var errorString = JSON.stringify('Bad Request');
+      process.env.NODE_ENV = 'production';
+      jsonErrorHandler(context, function(err, output) {
+        should.not.exist(err);
+        should.not.exist(context.error);
+        output.should.eql(errorString)
+        done();
+      });
+    });
+  });
+
 });
