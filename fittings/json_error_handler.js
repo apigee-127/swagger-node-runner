@@ -1,7 +1,7 @@
 'use strict';
-
 var debug = require('debug')('pipes:fittings');
 var util = require('util');
+var statuses = require('statuses');
 
 module.exports = function create(fittingDef) {
 
@@ -10,6 +10,7 @@ module.exports = function create(fittingDef) {
     if (!util.isError(context.error)) { return next(); }
 
     var err = context.error;
+
 
     debug('jsonErrorHandler: %s', context.error.message);
 
@@ -27,12 +28,20 @@ module.exports = function create(fittingDef) {
         }
       }
 
-      Object.defineProperty(err, 'message', { enumerable: true }); // include message property in response
+      
       if (context.statusCode === 500) {
         console.error(err.stack);
       }
       delete(context.error);
-      next(null, JSON.stringify(err));
+	  var production = process.env.NODE_ENV;
+      if (production === 'production') {
+        next(null, JSON.stringify(statuses[context.statusCode]));
+      } else {
+	  Object.defineProperty(err, 'message', { enumerable: true }); // include message property in response
+        next(null, JSON.stringify(err));
+      }
+
+
     } catch (err2) {
       debug('jsonErrorHandler unable to stringify error: %j', err);
       next();
