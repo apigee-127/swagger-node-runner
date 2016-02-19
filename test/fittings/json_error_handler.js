@@ -168,7 +168,7 @@ describe('json_error_handler', function() {
     beforeEach(function() {
 
       var err = new Error('this is a test');
-      err.statusCode = 500;
+      err.statusCode = 400;
       err.message = "This is a test message"
       err.otherProperty = "Random error property"
       context = {
@@ -190,13 +190,13 @@ describe('json_error_handler', function() {
         process.env.NODE_ENV = 'production';
       jsonErrorHandler(context, function(err) {
         should.not.exist(err);
-        context.statusCode.should.eql(500);
+        context.statusCode.should.eql(400);
         done();
       });
     });
 
     it('should NOT emit json properties', function(done) {
-      var errorString = JSON.stringify('Internal Server Error');
+      var errorString = JSON.stringify('Bad Request');
       process.env.NODE_ENV = 'production';
       jsonErrorHandler(context, function(err, output) {
         should.not.exist(err);
