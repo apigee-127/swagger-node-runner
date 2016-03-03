@@ -19,7 +19,9 @@ module.exports = function create(fittingDef, bagpipes) {
 
     var validateResult = context.request.swagger.operation.validateRequest(context.request);
     if (validateResult.errors.length > 0) {
-      var error = new Error('Validation errors');
+      for(var i = 0; i < validateResult.errors.length; i++){
+        var error = new Error(validateResult.errors[i].message);
+      }
       error.statusCode = 400;
       error.errors = validateResult.errors;
     }
