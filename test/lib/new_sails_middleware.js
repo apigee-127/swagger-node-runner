@@ -1,5 +1,6 @@
 'use strict';
 
+var fs = require('fs');
 var should = require('should');
 var path = require('path');
 var _ = require('lodash');
@@ -7,6 +8,8 @@ var _ = require('lodash');
 var SwaggerRunner = require('../..');
 
 var TEST_PROJECT_ROOT = path.resolve(__dirname, '..', 'assets', 'project');
+var TEST_PROJECT_ROOT_MODULES = path.resolve(TEST_PROJECT_ROOT, 'node_modules');
+var ROOT_MODULES = path.resolve(__dirname, '..', '..', 'node_modules')
 var TEST_PROJECT_CONFIG = {
   appRoot: TEST_PROJECT_ROOT,
   appPath: TEST_PROJECT_ROOT,
@@ -16,7 +19,7 @@ var TEST_PROJECT_CONFIG = {
         'router'
       ]
     }
-  } 
+  }
 };
 var MOCK_CONFIG = {
   appRoot: TEST_PROJECT_ROOT,
@@ -24,6 +27,13 @@ var MOCK_CONFIG = {
 };
 
 describe('sails_middleware', function () {
+  before(function (done) {
+    // sails use modules from appPath
+    fs.symlink(ROOT_MODULES, TEST_PROJECT_ROOT_MODULES, done)
+  })
+  after(function (done) {
+    fs.unlink(TEST_PROJECT_ROOT_MODULES, done)
+  })
   describe('standard', function () {
     before(function (done) {
       this.timeout(5000);
