@@ -20,7 +20,6 @@ function hello(req, res) {
 
 function hello_array(req, res) {
   var hello = 'Hello';
-  console.log(req.swagger)
   var names = req.swagger.params.names.value
   for (let n =0; n < names.length; n ++) {
     if (names.hasOwnProperty(n)) {
