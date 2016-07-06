@@ -86,7 +86,10 @@ function parseRequest(req, fittingDef, cb) {
       if (multFields.length === 0) { return cb(); }
       var mult = require('multer')(fittingDef.multerOptions);
       mult.fields(multFields)(req, res, function(err) {
-        if (err) { /* istanbul ignore next */ return cb(err); }
+        if (err) { /* istanbul ignore next */
+          if (err.code === 'LIMIT_UNEXPECTED_FILE') { err.statusCode = 400 }
+          return cb(err);
+        }
         if (req.files) {
           _.forEach(req.files, function(file, name) {
             req.files[name] = (Array.isArray(file) && file.length === 1) ? file[0] : file;
