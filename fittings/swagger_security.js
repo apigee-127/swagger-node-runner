@@ -29,7 +29,7 @@ module.exports = function create(fittingDef, bagpipes) {
     var req = context.request;
     var operation = req.swagger.operation;
 
-    if (!operation || !operation.security || operation.security.lenght == 0) { return cb(); }
+    if (!operation || !operation.security || operation.security.length == 0) { return cb(); }
 
     async.map(operation.security, // logical OR - any one can allow
       function orCheck(securityRequirement, cb) {
