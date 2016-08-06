@@ -19,6 +19,8 @@ module.exports = function create(fittingDef, bagpipes) {
 
   var mockMode = !!fittingDef.mockMode || !!swaggerNodeRunner.config.swagger.mockMode;
 
+  var ignoreMissingHandlers = !!fittingDef.ignoreMissingHandlers;
+
   var controllersDirs = mockMode ? fittingDef.mockControllersDirs : fittingDef.controllersDirs;
 
   controllersDirs = controllersDirs.map(function (dir) {
@@ -52,14 +54,14 @@ module.exports = function create(fittingDef, bagpipes) {
           break;
         } catch (err) {
           debug('controller not in', path.relative(appRoot, controllerPath));
-          if (!mockMode && i === controllersDirs.length - 1) {
+          if (!mockMode && !ignoreMissingHandlers && i === controllersDirs.length - 1) {
             return cb(err);
           }
         }
       }
     }
 
-    if (!controller && mockMode) {
+    if (!controller && (mockMode || ignoreMissingHandlers)) {
       controller = controllerFunctionsCache[controllerName] = {};
       debug('created mock controller %s', controllerName);
     }
@@ -72,6 +74,11 @@ module.exports = function create(fittingDef, bagpipes) {
       if (!controllerFunction && mockMode) {
         controllerFunction = controller[operationId] = createMockControllerFunction(fittingDef, bagpipes);
         debug('created mock controller function %s.%s', controllerName, operationId);
+      } else if (!controllerFunction && ignoreMissingHandlers) {
+        controllerFunction = controller[operationId] = function (req, res, cb) {
+          debug('%s.%s is missing but ignoreMissingHandlers is true', controllerName, operationId);
+          cb();
+        };
       }
 
       if (controllerFunction && typeof controllerFunction === 'function') {
