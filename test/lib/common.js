@@ -453,7 +453,7 @@ module.exports = function() {
         should.exist(res);
         validationResponse.errors.should.be.an.Array;
         validationResponse.errors.length.should.eql(1);
-        validationResponse.errors[0].should.eql({
+        validationResponse.errors[0].should.containDeep({
           code: 'INVALID_RESPONSE_HEADER',
           errors:
           [ { code: 'INVALID_TYPE',
@@ -484,7 +484,7 @@ module.exports = function() {
         should.exist(res);
         validationResponse.errors.should.be.an.Array;
         validationResponse.errors.length.should.eql(1);
-        validationResponse.errors[0].should.eql({
+        validationResponse.errors[0].should.containDeep({
           code: 'INVALID_RESPONSE_BODY',
           errors:
             [ { code: 'INVALID_TYPE',
