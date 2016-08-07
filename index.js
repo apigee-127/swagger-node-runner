@@ -238,6 +238,14 @@ function Runner(appJsConfig, cb) {
     })
     .catch(function(err) {
       console.error('Error in callback! Tossing to global error handler.', err.stack);
+
+      if (err.validationErrors) {
+        console.error('Details: ');
+        for (var i= 0; i<err.validationErrors.length; i++) {
+          console.error("\t#" + i + ".: " + err.validationErrors[i].message + " in swagger config at: >" + err.validationErrors[i].path.join('/') + "<");
+        }
+      }
+      
       process.nextTick(function() { throw err; });
     })
 }
