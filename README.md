@@ -12,6 +12,6 @@ If you're upgrading a swagger-node generated project, you must follow the upgrad
 
 Also, be sure to read the following release notes for more information on other changes and enhancements:
 
-https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.4
-https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.10
-https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.11
+https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.4  
+https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.10  
+https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.11  
