@@ -28,10 +28,12 @@ module.exports = function create(fittingDef, bagpipes) {
     var handlers = runner.securityHandlers || {};
     var req = context.request;
     var operation = req.swagger.operation;
+    if (!operation) { return cb(); }
 
-    if (!operation || !operation.security || operation.security.length == 0) { return cb(); }
+    var security = operation.getSecurity();
+    if (!security || security.length == 0) { return cb(); }
 
-    async.map(operation.security, // logical OR - any one can allow
+    async.map(security, // logical OR - any one can allow
       function orCheck(securityRequirement, cb) {
         var secName;
 
