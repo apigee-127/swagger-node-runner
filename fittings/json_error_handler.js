@@ -12,10 +12,13 @@ module.exports = function create(fittingDef, bagpipes) {
     if (!util.isError(context.error)) { return next(); }
 
     var err = context.error;
+    var log;
 
     debug('exec: %s', context.error.message);
 
     try {
+      log = context.response.log || context.request.log || console;
+      
       if (!context.statusCode || context.statusCode < 400) {
         if (context.response && context.response.statusCode && context.response.statusCode >= 400) {
           context.statusCode = context.response.statusCode;
@@ -36,6 +39,7 @@ module.exports = function create(fittingDef, bagpipes) {
       next(null, JSON.stringify(err));
     } catch (err2) {
       debug('jsonErrorHandler unable to stringify error: %j', err);
+      if (log) log.error(err2, "jsonErrorHandler unable to stringify error", err);
       next();
     }
   }
