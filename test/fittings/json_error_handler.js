@@ -172,16 +172,17 @@ describe('json_error_handler', function() {
           }
         },
         error: new Error('this is a test')
-      }
+      };
+      context.error.circular = context.error; //force stringification error
     });
 
-    it('should pass the error to the logger', function(done) {
+    it('should pass stringification error to the logger', function(done) {
       jsonErrorHandler(context, function(err) {
         should.not.exist(err);
         should.not.exist(context.error);
         should.exist(context.response.log.error.lastErr, "error was not passed to log");
-        should(context.response.log.error.lastErr.length).eql(3)
-        should(context.request.log.error.lastErr[2]).equal(context.error)
+        should(context.response.log.error.lastErr.length).eql(3);
+        should(context.request.log.error.lastErr[2]).equal(context.error);
         done();
       });
     });
@@ -198,16 +199,17 @@ describe('json_error_handler', function() {
           }
         },
         error: new Error('this is a test')
-      }
+      };
+      context.error.circular = context.error; //force stringification error
     });
 
-    it('should pass the error to the logger', function(done) {
+    it('should pass stringification error to the logger', function(done) {
       jsonErrorHandler(context, function(err) {
         should.not.exist(err);
         should.not.exist(context.error);
         should.exist(context.request.log.error.lastErr, "error was not passed to log");
-        should(context.request.log.error.lastErr.length).eql(3)
-        should(context.request.log.error.lastErr[2]).equal(context.error)
+        should(context.request.log.error.lastErr.length).eql(3);
+        should(context.request.log.error.lastErr[2]).equal(context.error);
         done();
       });
     });
