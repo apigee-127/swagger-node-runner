@@ -170,7 +170,7 @@ describe('json_error_handler', function() {
           log: { 
             error: function() { this.lastErr = arguments } 
           }
-        }
+        },
         error: new Error('this is a test')
       }
     });
@@ -196,7 +196,7 @@ describe('json_error_handler', function() {
           log: { 
             error: function() { this.lastErr = arguments } 
           }
-        }
+        },
         error: new Error('this is a test')
       }
     });
