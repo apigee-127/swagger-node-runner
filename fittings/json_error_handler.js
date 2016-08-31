@@ -13,6 +13,7 @@ module.exports = function create(fittingDef, bagpipes) {
 
     var err = context.error;
     var log;
+    var body;
 
     debug('exec: %s', context.error.message);
 
@@ -31,6 +32,7 @@ module.exports = function create(fittingDef, bagpipes) {
       }
 
       if (context.statusCode === 500 && !fittingDef.handle500Errors) { return next(err); }
+      //else - from here we commit to emitting error as JSON, no matter what.
 
       context.headers['Content-Type'] = 'application/json';
       Object.defineProperty(err, 'message', { enumerable: true }); // include message property in response
@@ -38,9 +40,18 @@ module.exports = function create(fittingDef, bagpipes) {
       delete(context.error);
       next(null, JSON.stringify(err));
     } catch (err2) {
-      debug('jsonErrorHandler unable to stringify error: %j', err);
-      if (log) log.error(err2, "jsonErrorHandler unable to stringify error", err);
-      next();
+
+      body = { 
+        message: "unable to stringify error properly",
+        stringifyErr: err2.message,
+        originalErrInspect: util.inspect(err)
+      };
+      context.statusCode = 500;
+      
+      debug('jsonErrorHandler unable to stringify error: ', err);
+      if (log) log.error(err2, "onError: json_error_handler - unable to stringify error", err);
+      
+      next(null, JSON.stringify(body));
     }
   }
 };
