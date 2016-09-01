@@ -18,7 +18,11 @@ module.exports = function create(fittingDef, bagpipes) {
     debug('exec: %s', context.error.message);
 
     try {
-      log = context.response && context.response.log || context.request && context.request.log;
+      log = context.request && ( 
+               context.request.log 
+            || context.request.app && context.request.app.log
+            )
+         || context.response && context.response.log
       
       if (!context.statusCode || context.statusCode < 400) {
         if (context.response && context.response.statusCode && context.response.statusCode >= 400) {

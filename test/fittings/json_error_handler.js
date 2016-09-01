@@ -136,11 +136,11 @@ describe('json_error_handler', function() {
       mockErr.circular = mockErr; //force stringification error
     });
   
-    describe('and context has a logger on response', function() {
+    describe('and context has a logger on request', function() {
       before(function(done) {
         context = {
           headers: {},
-          response: {
+          request: {
             log: { 
               error: function() { this.lastErr = arguments } 
             }
@@ -159,18 +159,49 @@ describe('json_error_handler', function() {
           should.not.exist(context.error);
       });
       it('should pass stringification error to the logger', function() {
-          should.exist(context.response.log.lastErr, "error was not passed to log");
-          should(context.response.log.lastErr.length).eql(3);
-          should(context.response.log.lastErr[2]).equal(mockErr);
+          should.exist(context.request.log.lastErr, "error was not passed to log");
+          should(context.request.log.lastErr.length).eql(3);
+          should(context.request.log.lastErr[2]).equal(mockErr);
       });
     });
     
-    describe('and context has no logger on response, but has on request', function() {
+    describe('and context has no logger on req.log, but has on request.app.log', function() {
+      before(function(done) {
+        context = {
+          headers: {},
+          request: {
+            app: {
+              log: { 
+                error: function() { this.lastErr = arguments } 
+              }
+            }
+          },
+          error: mockErr
+        };
+        jsonErrorHandler(context, function(e) {
+            err = e;
+            done()
+        });
+      });
+      it('should not fail', function() {
+          should.not.exist(err);
+      })
+      it('should remove the error from the context', function() {
+          should.not.exist(context.error);
+      });
+      it('should pass stringification error to the logger', function() {
+          should.exist(context.request.app.log.lastErr, "error was not passed to log");
+          should(context.request.app.log.lastErr.length).eql(3);
+          should(context.request.app.log.lastErr[2]).equal(mockErr);
+      });
+    });
+    
+    describe('and context has no logger on request, but has on response', function() {
       
       beforeEach(function(done) {
         context = {
           headers: {},
-          request: {
+          response: {
             log: { 
               error: function() { this.lastErr = arguments } 
             }
@@ -191,9 +222,9 @@ describe('json_error_handler', function() {
           should.not.exist(context.error);
       });
       it('should pass stringification error to the logger', function() {
-          should.exist(context.request.log.lastErr, "error was not passed to log");
-          should(context.request.log.lastErr.length).eql(3);
-          should(context.request.log.lastErr[2]).equal(mockErr);
+          should.exist(context.response.log.lastErr, "error was not passed to log");
+          should(context.response.log.lastErr.length).eql(3);
+          should(context.response.log.lastErr[2]).equal(mockErr);
       });
     });
   });
