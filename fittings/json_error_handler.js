@@ -17,12 +17,6 @@ module.exports = function create(fittingDef, bagpipes) {
 
     debug('exec: %s', context.error.message);
 
-    try {
-      log = context.request && ( 
-               context.request.log 
-            || context.request.app && context.request.app.log
-            )
-         || context.response && context.response.log
       
       if (!context.statusCode || context.statusCode < 400) {
         if (context.response && context.response.statusCode && context.response.statusCode >= 400) {
@@ -35,6 +29,8 @@ module.exports = function create(fittingDef, bagpipes) {
         }
       }
 
+    try {
+      //TODO: find what's throwing here...
       if (context.statusCode === 500 && !fittingDef.handle500Errors) { return next(err); }
       //else - from here we commit to emitting error as JSON, no matter what.
 
@@ -44,7 +40,12 @@ module.exports = function create(fittingDef, bagpipes) {
       delete(context.error);
       next(null, JSON.stringify(err));
     } catch (err2) {
-
+      log = context.request && ( 
+               context.request.log 
+            || context.request.app && context.request.app.log
+            )
+         || context.response && context.response.log;
+    
       body = { 
         message: "unable to stringify error properly",
         stringifyErr: err2.message,
