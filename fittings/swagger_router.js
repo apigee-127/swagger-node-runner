@@ -15,6 +15,7 @@ module.exports = function create(fittingDef, bagpipes) {
 
   var swaggerNodeRunner = bagpipes.config.swaggerNodeRunner;
   var appRoot = swaggerNodeRunner.config.swagger.appRoot;
+  var dependencies = swaggerNodeRunner.config.swagger.dependencies
 
   var mockMode = !!fittingDef.mockMode || !!swaggerNodeRunner.config.swagger.mockMode;
 
@@ -45,7 +46,7 @@ module.exports = function create(fittingDef, bagpipes) {
       for (var i = 0; i < controllersDirs.length; i++) {
         var controllerPath = path.resolve(controllersDirs[i], controllerName);
         try {
-          controller = require(controllerPath);
+          controller = !dependencies ? require(controllerPath) : require(controllerPath)(dependencies);
           controllerFunctionsCache[controllerName] = controller;
           debug('controller found', controllerPath);
           break;
