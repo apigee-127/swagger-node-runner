@@ -110,6 +110,39 @@ describe('index', function() {
       });
     });
 
+    it('should create with injected dependencies', function(done) {
+
+      var config = _.clone(DEFAULT_PROJECT_CONFIG);
+      var FooFactory = {
+        hello: function(name){
+          if(!name)
+            name = 'stranger';
+          return `Hello, ${name}!`;
+        }
+      }
+      config.dependencies = {FooFactory}
+      SwaggerRunner.create(config, function(err, runner) {
+        if (err) { return done(err); }
+        runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
+
+        var app = require('connect')();
+        runner.connectMiddleware().register(app);
+
+        var request = require('supertest');
+
+        request(app)
+          .get('/hello_injected_dependencies')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function(err, res) {
+            should.not.exist(err);
+            res.body.should.eql('Hello, stranger!');
+            done();
+          });
+      });
+    });
+
     it('should fail without callback', function() {
 
       (function() { SwaggerRunner.create(DEFAULT_PROJECT_CONFIG) }).should.throw('callback is required');

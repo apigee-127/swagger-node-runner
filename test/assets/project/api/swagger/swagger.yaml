@@ -239,6 +239,25 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /hello_injected_dependencies:
+    x-swagger-router-controller: hello_deps_injected
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/HelloWorldResponse"
+          examples:
+            application/json:
+              message: 'An example message'
   /swagger:
     x-swagger-pipe: swagger_raw
   /pipe_on_get:
