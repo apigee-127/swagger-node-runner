@@ -3,6 +3,7 @@
 var should = require('should');
 var path = require('path');
 var _ = require('lodash');
+var util = require('util');
 
 var SwaggerRunner = require('..');
 
@@ -99,6 +100,39 @@ describe('index', function() {
 
         request(app)
           .get('/hello')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function(err, res) {
+            should.not.exist(err);
+            res.body.should.eql('Hello, stranger!');
+            done();
+          });
+      });
+    });
+
+    it('should create with injected dependencies controllers', function(done) {
+
+      var config = _.clone(DEFAULT_PROJECT_CONFIG);
+      var fooFactory = {
+        hello: function(name){
+          if(!name)
+            name = 'stranger';
+          return util.format('Hello, %s!', name);
+        }
+      }
+      config.dependencies = {FooFactory: fooFactory}
+      SwaggerRunner.create(config, function(err, runner) {
+        if (err) { return done(err); }
+        runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
+
+        var app = require('connect')();
+        runner.connectMiddleware().register(app);
+
+        var request = require('supertest');
+
+        request(app)
+          .get('/hello_injected_dependencies')
           .set('Accept', 'application/json')
           .expect(200)
           .expect('Content-Type', /json/)
