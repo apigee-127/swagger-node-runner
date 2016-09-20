@@ -3,6 +3,7 @@
 var should = require('should');
 var path = require('path');
 var _ = require('lodash');
+var util = require('util');
 
 var SwaggerRunner = require('..');
 
@@ -110,17 +111,17 @@ describe('index', function() {
       });
     });
 
-    it('should create with injected dependencies', function(done) {
+    it('should create with injected dependencies controllers', function(done) {
 
       var config = _.clone(DEFAULT_PROJECT_CONFIG);
-      var FooFactory = {
+      var fooFactory = {
         hello: function(name){
           if(!name)
             name = 'stranger';
-          return `Hello, ${name}!`;
+          return util.format('Hello, %s!', name);
         }
       }
-      config.dependencies = {FooFactory}
+      config.dependencies = {FooFactory: fooFactory}
       SwaggerRunner.create(config, function(err, runner) {
         if (err) { return done(err); }
         runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
