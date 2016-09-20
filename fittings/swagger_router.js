@@ -46,7 +46,8 @@ module.exports = function create(fittingDef, bagpipes) {
       for (var i = 0; i < controllersDirs.length; i++) {
         var controllerPath = path.resolve(controllersDirs[i], controllerName);
         try {
-          controller = !dependencies ? require(controllerPath) : require(controllerPath)(dependencies);
+          var ctrlObj = require(controllerPath)
+          controller = dependencies && typeof ctrlObj === 'function' ? ctrlObj(dependencies) : ctrlObj
           controllerFunctionsCache[controllerName] = controller;
           debug('controller found', controllerPath);
           break;
