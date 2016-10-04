@@ -67,7 +67,9 @@ module.exports = function create(fittingDef, bagpipes) {
 
       if (controllerFunction && typeof controllerFunction === 'function') {
         debug('running controller');
-        return controllerFunction(context.request, context.response, cb);
+        return fittingDef.controllerInterface == "pipe"
+          ? controllerFunction(context, cb)
+          : controllerFunction(context.request, context.response, cb);
       }
 
       var msg = util.format('Controller %s doesn\'t export handler function %s', controllerName, operationId);
