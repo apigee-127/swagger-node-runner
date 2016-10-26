@@ -143,9 +143,46 @@ describe('index', function() {
           });
       });
     });
+    
+    var origCfgDir = process.env.NODE_CONFIG_DIR;
+    afterEach(function() {
+      //force to load fresh
+      Object.keys(require.cache).forEach(function(path) {
+          if (  /node_modules[\\\/]config[\\\/.]/.test(path) )
+              delete require.cache[path];
+      });
+      process.env.NODE_CONFIG_DIR = origCfgDir;
+    })
+
+    it('should use the configured router interface', function(done) {
+      var config = _.clone(DEFAULT_PROJECT_CONFIG);
+      
+      process.env.NODE_CONFIG_DIR = path.resolve(config.appRoot, "config_pipe");
+      
+      SwaggerRunner.create(config, function(err, runner) {
+        if (err) { return done(err); }
+        runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
+
+        var app = require('connect')();
+        runner.connectMiddleware().register(app);
+
+        var request = require('supertest');
+
+        request(app)
+          .get('/hello')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function(err, res) {
+            should.not.exist(err, err && err.stack);
+            res.body.should.eql({ message: 'Hello, stranger!' });
+            done();
+          });
+      });        
+     
+    });
 
     it('should fail without callback', function() {
-
       (function() { SwaggerRunner.create(DEFAULT_PROJECT_CONFIG) }).should.throw('callback is required');
     });
   });
