@@ -1,7 +1,7 @@
 # values in the swagger hash are system configuration for swagger-node
 swagger:
 
-  fittingsDirs: [ api/fittings ]
+  fittingsDirs: [ node_modules, api/fittings ]
   defaultPipe: null
   swaggerControllerPipe: swagger_controllers  # defines the standard processing pipe for controllers
 
@@ -27,7 +27,7 @@ swagger:
     # pipe for all swagger-node controllers
     swagger_controllers:
       - onError: json_error_handler
-      - cors
+      - swagger_cors
       - swagger_params_parser
       - _swagger_security
       - _swagger_validate
