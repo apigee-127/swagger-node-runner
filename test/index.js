@@ -156,10 +156,9 @@ describe('index', function() {
         delete process.env.NODE_CONFIG_DIR;
     });
 
-    it('should use the configured router interface', function(done) {
+    it('should use pipe interface when _router.controllersInterface is set to `pipe`', function(done) {
       var config = _.clone(DEFAULT_PROJECT_CONFIG);
-      
-      process.env.NODE_CONFIG_DIR = path.resolve(DEFAULT_PROJECT_ROOT, "config_pipe");
+      config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_pipe");
       
       SwaggerRunner.create(config, function(err, runner) {
         if (err) { return done(err); }
@@ -181,8 +180,116 @@ describe('index', function() {
             done();
           });
       });        
-     
     });
+    
+    it('should use pipe interface when _router.controllersInterface is set to `auto` and operation.length is 2', function(done) {
+      var config = _.clone(DEFAULT_PROJECT_CONFIG);
+      config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_auto");
+      
+      SwaggerRunner.create(config, function(err, runner) {
+        if (err) { return done(err); }
+        runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
+
+        var app = require('connect')();
+        runner.connectMiddleware().register(app);
+
+        var request = require('supertest');
+
+        request(app)
+          .get('/controller_interface_auto_detected_as_pipe')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .expect('x-interface', /pipe/)
+          .end(function(err, res) {
+            should.not.exist(err, err && err.stack);
+            res.body.should.eql({ interface: "pipe" });
+            done();
+          });
+      });        
+    });
+    
+    it('should use middleware interface when _router.controllersInterface is set to `auto` and operation.length is 3', function(done) {
+      var config = _.clone(DEFAULT_PROJECT_CONFIG);
+      config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_auto");
+      
+      SwaggerRunner.create(config, function(err, runner) {
+        if (err) { return done(err); }
+        runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
+
+        var app = require('connect')();
+        runner.connectMiddleware().register(app);
+
+        var request = require('supertest');
+
+        request(app)
+          .get('/controller_interface_auto_detected_as_middleware')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .expect('x-interface', /middleware/)
+          .end(function(err, res) {
+            should.not.exist(err, err && err.stack);
+            res.body.should.eql({ interface: "middleware" });
+            done();
+          });
+      });        
+    });
+    
+    it('should use adhere to cascading directgive `x-interface-type` found on path', function(done) {
+      var config = _.clone(DEFAULT_PROJECT_CONFIG);
+      config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_auto");
+      
+      SwaggerRunner.create(config, function(err, runner) {
+        if (err) { return done(err); }
+        runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
+
+        var app = require('connect')();
+        runner.connectMiddleware().register(app);
+
+        var request = require('supertest');
+
+        request(app)
+          .get('/controller_interface_on_path_cascades')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .expect('x-interface', /pipe/)
+          .end(function(err, res) {
+            should.not.exist(err, err && err.stack);
+            res.body.should.eql({ interface: "pipe" });
+            done();
+          });
+      });        
+    });
+
+    it('should use adhere to cascading directgive `x-interface-type` found on operation over one found on path', function(done) {
+      var config = _.clone(DEFAULT_PROJECT_CONFIG);
+      config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_auto");
+      
+      SwaggerRunner.create(config, function(err, runner) {
+        if (err) { return done(err); }
+        runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
+
+        var app = require('connect')();
+        runner.connectMiddleware().register(app);
+
+        var request = require('supertest');
+
+        request(app)
+          .get('/controller_interface_on_operation_cascades')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .expect('x-interface', /middleware/)
+          .end(function(err, res) {
+            should.not.exist(err, err && err.stack);
+            res.body.should.eql({ interface: "middleware" });
+            done();
+          });
+      });        
+    });     
+    
 
     it('should fail without callback', function() {
       (function() { SwaggerRunner.create(DEFAULT_PROJECT_CONFIG) }).should.throw('callback is required');
