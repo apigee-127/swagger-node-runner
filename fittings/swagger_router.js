@@ -5,6 +5,7 @@ var path = require('path');
 var assert = require('assert');
 var SWAGGER_ROUTER_CONTROLLER = 'x-swagger-router-controller';
 var CONTROLLER_INTERFACE_TYPE = 'x-controller-interface';
+var allowedCtrlInterfaces = ["middleware", "pipe", "auto-detect"];
 var util = require('util');
 
 module.exports = function create(fittingDef, bagpipes) {
@@ -15,9 +16,9 @@ module.exports = function create(fittingDef, bagpipes) {
   assert(Array.isArray(fittingDef.mockControllersDirs), 'mockControllersDirs must be an array');
   
   if (!fittingDef.controllersInterface) fittingDef.controllersInterface = "middleware";
-  assert(fittingDef.controllersInterface == "middleware" ||
-         fittingDef.controllersInterface == "pipe" ||
-         fittingDef.controllersInterface == "auto", 'value in swagger_router config.controllersInterface - can be one of middleware,pipe,auto' );
+  assert( ~allowedCtrlInterfaces.indexOf(fittingDef.controllersInterface), 
+    'value in swagger_router config.controllersInterface - can be one of ' + allowedCtrlInterfaces + ' but got: ' + fittingDef.controllersInterface
+  );
 
   var swaggerNodeRunner = bagpipes.config.swaggerNodeRunner;
   swaggerNodeRunner.api.getOperations().forEach(function(operation) { 
@@ -28,8 +29,8 @@ module.exports = function create(fittingDef, bagpipes) {
             swaggerNodeRunner.api.definition[CONTROLLER_INTERFACE_TYPE] ||
             fittingDef.controllersInterface;
         
-      assert( ~["middleware", "pipe", "auto"].indexOf(interfaceType), 
-        'whenever provided, value of ' + CONTROLLER_INTERFACE_TYPE + ' directive in openapi doc must be one of middleware,pipe,auto');
+      assert( ~allowedCtrlInterfaces.indexOf(interfaceType), 
+        'whenever provided, value of ' + CONTROLLER_INTERFACE_TYPE + ' directive in openapi doc must be one of ' + allowedCtrlInterfaces + ' but got: ' + interfaceType);
   })
   
   var appRoot = swaggerNodeRunner.config.swagger.appRoot;
@@ -89,7 +90,7 @@ module.exports = function create(fittingDef, bagpipes) {
       var controllerFunction = controller[operationId];
 
       if (controllerFunction && typeof controllerFunction === 'function') {
-        if (operation.controllerInterface == 'auto') {
+        if (operation.controllerInterface == 'auto-detect') {
             operation.controllerInterface = 
               controllerFunction.length == 3
                 ? 'middleware'
