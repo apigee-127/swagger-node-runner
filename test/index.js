@@ -144,20 +144,22 @@ describe('index', function() {
       });
     });
     
-    var origCfgDir = process.env.NODE_CONFIG_DIR;
-    afterEach(function() {
-      //force to load fresh
+    beforeEach( function() {
+      //force to load fresh of require('config')
+      var xConfigModulePath = /node_modules[\\\/]config[\\\/]/;
       Object.keys(require.cache).forEach(function(path) {
-          if (  /node_modules[\\\/]config[\\\/.]/.test(path) )
+          if ( xConfigModulePath.test(path) )
               delete require.cache[path];
       });
-      process.env.NODE_CONFIG_DIR = origCfgDir;
-    })
+    });
+    afterEach(function() {
+        delete process.env.NODE_CONFIG_DIR;
+    });
 
     it('should use the configured router interface', function(done) {
       var config = _.clone(DEFAULT_PROJECT_CONFIG);
       
-      process.env.NODE_CONFIG_DIR = path.resolve(config.appRoot, "config_pipe");
+      process.env.NODE_CONFIG_DIR = path.resolve(DEFAULT_PROJECT_ROOT, "config_pipe");
       
       SwaggerRunner.create(config, function(err, runner) {
         if (err) { return done(err); }
