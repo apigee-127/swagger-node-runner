@@ -1,3 +1,2 @@
---recursive 
---ui exports 
 --reporter spec 
+test test/lib test/fittings
