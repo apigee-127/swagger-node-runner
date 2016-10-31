@@ -4,6 +4,8 @@ var debug = require('debug')('swagger:swagger_router');
 var path = require('path');
 var assert = require('assert');
 var SWAGGER_ROUTER_CONTROLLER = 'x-swagger-router-controller';
+var CONTROLLER_INTERFACE_TYPE = 'x-controller-interface';
+var allowedCtrlInterfaces = ["middleware", "pipe", "auto-detect"];
 var util = require('util');
 
 module.exports = function create(fittingDef, bagpipes) {
@@ -12,8 +14,25 @@ module.exports = function create(fittingDef, bagpipes) {
 
   assert(Array.isArray(fittingDef.controllersDirs), 'controllersDirs must be an array');
   assert(Array.isArray(fittingDef.mockControllersDirs), 'mockControllersDirs must be an array');
+  
+  if (!fittingDef.controllersInterface) fittingDef.controllersInterface = "middleware";
+  assert( ~allowedCtrlInterfaces.indexOf(fittingDef.controllersInterface), 
+    'value in swagger_router config.controllersInterface - can be one of ' + allowedCtrlInterfaces + ' but got: ' + fittingDef.controllersInterface
+  );
 
   var swaggerNodeRunner = bagpipes.config.swaggerNodeRunner;
+  swaggerNodeRunner.api.getOperations().forEach(function(operation) { 
+      var interfaceType = 
+            operation.controllerInterface = 
+            operation.definition[CONTROLLER_INTERFACE_TYPE] ||
+            operation.pathObject.definition[CONTROLLER_INTERFACE_TYPE] ||
+            swaggerNodeRunner.api.definition[CONTROLLER_INTERFACE_TYPE] ||
+            fittingDef.controllersInterface;
+        
+      assert( ~allowedCtrlInterfaces.indexOf(interfaceType), 
+        'whenever provided, value of ' + CONTROLLER_INTERFACE_TYPE + ' directive in openapi doc must be one of ' + allowedCtrlInterfaces + ' but got: ' + interfaceType);
+  })
+  
   var appRoot = swaggerNodeRunner.config.swagger.appRoot;
   var dependencies = swaggerNodeRunner.config.swagger.dependencies
 
@@ -62,12 +81,27 @@ module.exports = function create(fittingDef, bagpipes) {
 
     if (controller) {
 
-      var operationId = operation.definition['operationId'] || context.request.method.toLowerCase();
+      var operationId = operation.definition.operationId || context.request.method.toLowerCase();
+      var ctrlType = 
+            operation.definition['x-controller-type'] ||
+            operation.pathObject.definition['x-controller-type'] ||
+            operation.pathObject.api.definition['x-controller-type'];
+          
       var controllerFunction = controller[operationId];
 
       if (controllerFunction && typeof controllerFunction === 'function') {
-        debug('running controller');
-        return controllerFunction(context.request, context.response, cb);
+        if (operation.controllerInterface == 'auto-detect') {
+            operation.controllerInterface = 
+              controllerFunction.length == 3
+                ? 'middleware'
+                : 'pipe';
+            debug("auto-detected interface-type for operation '%s' at [%s] as '%s'", operationId, operation.pathToDefinition, operation.controllerInterface)
+        }
+        
+        debug('running controller, as %s', operation.controllerInterface);
+        return operation.controllerInterface == 'pipe'
+          ? controllerFunction(context, cb)
+          : controllerFunction(context.request, context.response, cb);
       }
 
       var msg = util.format('Controller %s doesn\'t export handler function %s', controllerName, operationId);

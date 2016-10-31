@@ -314,6 +314,45 @@ paths:
             content-type:
               type: integer
           schema: {}
+  /controller_interface_auto_detected_as_pipe:
+    x-swagger-router-controller: overrides_ctrl_interface_pipe
+    x-controller-interface: auto-detect
+    get:
+      description: well, what do you know...
+      operationId: pipeInterface
+      responses: 
+        200: 
+          description: Whatever
+          schema: {}
+  /controller_interface_auto_detected_as_middleware:
+    x-swagger-router-controller: overrides_ctrl_interface_pipe
+    x-controller-interface: auto-detect
+    get:
+      description: well, what do you know...
+      operationId: middlewareInterface
+      responses: 
+        200: 
+          description: Whatever
+          schema: {}
+  /controller_interface_on_path_cascades:
+    x-swagger-router-controller: overrides_ctrl_interface_pipe
+    x-controller-interface: pipe
+    get: 
+      operationId: pipeInterface
+      responses: 
+        200: 
+          description: Whatever
+          schema: {}
+  /controller_interface_on_operation_cascades:
+    x-swagger-router-controller: overrides_ctrl_interface_pipe
+    x-controller-interface: pipe
+    get: 
+      x-controller-interface: middleware
+      operationId: middlewareInterface
+      responses: 
+        200: 
+          description: Whatever
+          schema: {}
 definitions:
   HelloWorldResponse:
     type: object

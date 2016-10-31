@@ -20,7 +20,7 @@ describe('swagger_raw', function() {
     delete(filteredSwagger.paths['/invalid_header']);
 
     // hokey algorithm, but at least it's different than the one it's testing
-    var OMIT = ['x-swagger-router-controller', 'x-swagger-pipe', 'x-hidden', 'x-private'];
+    var OMIT = ['x-swagger-router-controller', 'x-swagger-pipe', 'x-hidden', 'x-private', 'x-controller-interface'];
     _.forEach(filteredSwagger.paths, function(element, name) {
       filteredSwagger.paths[name] = _.omit(element, OMIT);
       _.forEach(filteredSwagger.paths[name], function(element, subName) {
