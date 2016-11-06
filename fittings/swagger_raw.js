@@ -46,7 +46,7 @@ module.exports = function create(fittingDef, bagpipes) {
 };
 
 function filterKeysRecursive(object, dropTagRegex, privateTags) {
-  if (object && 'object' == typeof object)) {
+  if (_.isPlainObject(object)) {
     if (_.any(privateTags, function(tag) { return object[tag]; })) {
       object = undefined;
     } else {
@@ -66,6 +66,12 @@ function filterKeysRecursive(object, dropTagRegex, privateTags) {
       });
       return result;
     }
+  } else if (Array.isArray(object) ) {
+     object = object.reduce(function(reduced, value) {
+        var v = filterKeysRecursive(value, dropTagRegex, privateTags);
+        if (v !== undefined) reduced.push(v);
+        return reduced
+     }, [])
   }
   return object;
 }
