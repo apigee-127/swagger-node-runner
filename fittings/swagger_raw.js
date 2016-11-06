@@ -46,7 +46,7 @@ module.exports = function create(fittingDef, bagpipes) {
 };
 
 function filterKeysRecursive(object, dropTagRegex, privateTags) {
-  if (_.isPlainObject(object)) {
+  if (object && 'object' == typeof object)) {
     if (_.any(privateTags, function(tag) { return object[tag]; })) {
       object = undefined;
     } else {
@@ -60,6 +60,8 @@ function filterKeysRecursive(object, dropTagRegex, privateTags) {
             debug('dropping object at %s', key);
             delete(result[key]);
           }
+        } else {
+            debug("dropping value at %s", key)
         }
       });
       return result;
