@@ -123,6 +123,39 @@ describe('json_error_handler', function() {
       });
     });
   });
+  
+  describe('includeErrStack:true', function() {
+
+    var context;
+    beforeEach(function() {
+      var err = new Error('this is a test');
+      err.statusCode = 401;
+      err.someAttr = 'value';
+      context = {
+        headers: {},
+        error: err
+      };
+    });
+    
+    it('should allow the stack in the response body', function(done) {
+
+      var jsonErrorHandler = json_error_handler({ includeErrStack: true });
+
+      jsonErrorHandler(context, function(err, output) {
+        should.not.exist(err);
+        should.not.exist(context.error);
+
+        var e;
+        try {
+          var body = JSON.parse(output);
+          body.should.have.property('message', 'this is a test');
+          body.should.have.property('someAttr','value');
+          body.should.have.property('stack')
+        } catch(x) { e = x }
+        done(e)
+      });
+    })
+  })
 
   describe('handle500Errors:true and error fails to stringify', function() { 
     var jsonErrorHandler;
