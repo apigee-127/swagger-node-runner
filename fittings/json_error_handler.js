@@ -35,6 +35,8 @@ module.exports = function create(fittingDef, bagpipes) {
 
       context.headers['Content-Type'] = 'application/json';
       Object.defineProperty(err, 'message', { enumerable: true }); // include message property in response
+      if (fittingDef.includeErrStack)
+          Object.defineProperty(err, 'stack', { enumerable: true }); // include stack property in response
 
       delete(context.error);
       next(null, JSON.stringify(err));
