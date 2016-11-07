@@ -22,6 +22,7 @@ paths:
           description: The name of the person to whom to say hello
           required: false
           type: string
+          x-remove-me: lol
       responses:
         200:
           description: Success

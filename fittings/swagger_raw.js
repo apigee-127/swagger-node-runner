@@ -60,10 +60,18 @@ function filterKeysRecursive(object, dropTagRegex, privateTags) {
             debug('dropping object at %s', key);
             delete(result[key]);
           }
+        } else {
+            debug("dropping value at %s", key)
         }
       });
       return result;
     }
+  } else if (Array.isArray(object) ) {
+     object = object.reduce(function(reduced, value) {
+        var v = filterKeysRecursive(value, dropTagRegex, privateTags);
+        if (v !== undefined) reduced.push(v);
+        return reduced
+     }, [])
   }
   return object;
 }

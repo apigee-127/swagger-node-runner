@@ -18,6 +18,7 @@ describe('swagger_raw', function() {
 
     var filteredSwagger = _.cloneDeep(swagger);
     delete(filteredSwagger.paths['/invalid_header']);
+    delete(filteredSwagger.paths['/hello'].get.parameters[0]['x-remove-me'])
 
     // hokey algorithm, but at least it's different than the one it's testing
     var OMIT = ['x-swagger-router-controller', 'x-swagger-pipe', 'x-hidden', 'x-private', 'x-controller-interface'];
