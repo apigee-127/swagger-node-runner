@@ -15,3 +15,5 @@ Also, be sure to read the following release notes for more information on other 
 https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.4  
 https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.10  
 https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.11  
+https://github.com/theganyo/swagger-node-runner/releases/tag/v0.7.0
+https://github.com/theganyo/swagger-node-runner/releases/tag/v0.7.1
