@@ -17,11 +17,15 @@ module.exports = function create(fittingDef, bagpipes) {
     //var accept = req.headers['accept'];
     //var produces = _.union(operation.api.definition.produces, operation.definition.produces);
 
-    var validateResult = context.request.swagger.operation.validateRequest(context.request);
-    if (validateResult.errors.length > 0) {
-      var error = new Error('Validation errors');
-      error.statusCode = 400;
-      error.errors = validateResult.errors;
+    if (context.request.swagger.operation) {
+      var validateResult = context.request.swagger.operation.validateRequest(context.request);
+      if (validateResult.errors.length) {
+        var error = new Error('Validation errors');
+        error.statusCode = 400;
+        error.errors = validateResult.errors;
+      }
+    } else {
+      debug('not a swagger operation, will not validate response');
     }
 
     cb(error);
