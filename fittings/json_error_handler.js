@@ -37,7 +37,7 @@ module.exports = function create(fittingDef, bagpipes) {
       if (fittingDef.includeErrStack)
           Object.defineProperty(err, 'stack', { enumerable: true }); // include stack property in response
 
-      context.error = new Error(null);
+      //context.error = new Error(null);
 
       next(null, JSON.stringify(err));
     } catch (err2) {
