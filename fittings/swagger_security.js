@@ -39,7 +39,8 @@ module.exports = function create(fittingDef, bagpipes) {
 
         async.map(Object.keys(securityRequirement), // logical AND - all must allow
           function andCheck(name, cb) {
-            var secDef = operation.securityDefinitions[name];
+            // Check both route and global security definitions
+            var secDef = operation.securityDefinitions[name] || operation.pathObject.api.securityDefinitions[name];
             var handler = handlers[name];
 
             secName = name;
