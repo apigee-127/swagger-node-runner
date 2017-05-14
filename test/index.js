@@ -32,6 +32,92 @@ var SWAGGER_WITH_WARNINGS = {
   }
 };
 
+var SWAGGER_WITH_GLOBAL_SECURITY = {
+    "swagger": "2.0",
+    "info": {
+        "version": "0.0.1",
+        "title": "Hello World App"
+    },
+    "host": "localhost:10010",
+    "basePath": "/",
+    "schemes": [
+        "http"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "api_key": []
+        }
+    ],
+    "paths": {
+        "/hello_secured": {
+            "x-swagger-router-controller": "hello_world",
+            "get": {
+                "description": "Returns 'Hello' to the caller",
+                "operationId": "hello",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "The name of the person to whom to say hello",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/HelloWorldResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "HelloWorldResponse": {
+            "type": "object",
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ErrorResponse": {
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "api_key": {
+            "type": "apiKey",
+            "name": "api_key",
+            "in": "header"
+        }
+    }
+};
+
 
 describe('index', function() {
 
@@ -143,7 +229,7 @@ describe('index', function() {
           });
       });
     });
-    
+
     beforeEach( function() {
       //force to load fresh of require('config')
       var xConfigModulePath = /node_modules[\\\/]config[\\\/]/;
@@ -159,7 +245,7 @@ describe('index', function() {
     it('should use pipe interface when _router.controllersInterface is set to `pipe`', function(done) {
       var config = _.clone(DEFAULT_PROJECT_CONFIG);
       config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_pipe");
-      
+
       SwaggerRunner.create(config, function(err, runner) {
         if (err) { return done(err); }
         runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
@@ -179,13 +265,13 @@ describe('index', function() {
             res.body.should.eql({ message: 'Hello, stranger!' });
             done();
           });
-      });        
+      });
     });
-    
+
     it('should use pipe interface when _router.controllersInterface is set to `auto` and operation.length is 2', function(done) {
       var config = _.clone(DEFAULT_PROJECT_CONFIG);
       config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_auto");
-      
+
       SwaggerRunner.create(config, function(err, runner) {
         if (err) { return done(err); }
         runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
@@ -206,13 +292,13 @@ describe('index', function() {
             res.body.should.eql({ interface: "pipe" });
             done();
           });
-      });        
+      });
     });
-    
+
     it('should use middleware interface when _router.controllersInterface is set to `auto` and operation.length is 3', function(done) {
       var config = _.clone(DEFAULT_PROJECT_CONFIG);
       config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_auto");
-      
+
       SwaggerRunner.create(config, function(err, runner) {
         if (err) { return done(err); }
         runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
@@ -233,13 +319,13 @@ describe('index', function() {
             res.body.should.eql({ interface: "middleware" });
             done();
           });
-      });        
+      });
     });
-    
+
     it('should use adhere to cascading directgive `x-interface-type` found on path', function(done) {
       var config = _.clone(DEFAULT_PROJECT_CONFIG);
       config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_auto");
-      
+
       SwaggerRunner.create(config, function(err, runner) {
         if (err) { return done(err); }
         runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
@@ -260,13 +346,13 @@ describe('index', function() {
             res.body.should.eql({ interface: "pipe" });
             done();
           });
-      });        
+      });
     });
 
     it('should use adhere to cascading directgive `x-interface-type` found on operation over one found on path', function(done) {
       var config = _.clone(DEFAULT_PROJECT_CONFIG);
       config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_auto");
-      
+
       SwaggerRunner.create(config, function(err, runner) {
         if (err) { return done(err); }
         runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
@@ -287,9 +373,9 @@ describe('index', function() {
             res.body.should.eql({ interface: "middleware" });
             done();
           });
-      });        
-    });     
-    
+      });
+    });
+
 
     it('should fail without callback', function() {
       (function() { SwaggerRunner.create(DEFAULT_PROJECT_CONFIG) }).should.throw('callback is required');
@@ -342,4 +428,28 @@ describe('index', function() {
       done();
     });
   });
+
+  it('should allow paths using global security', function(done) {
+      var config = _.clone(DEFAULT_PROJECT_CONFIG);
+      config.startWithWarnings = true;
+      config.swagger = SWAGGER_WITH_GLOBAL_SECURITY;
+      SwaggerRunner.create(config, function(err, runner) {
+
+          var app = require('connect')();
+          runner.connectMiddleware().register(app);
+
+          var request = require('supertest');
+
+          request(app)
+              .get('/hello_secured?name=Scott')
+              .set('Accept', 'application/json')
+              .expect(200)
+              .expect('Content-Type', /json/)
+              .end(function(err, res) {
+                  should.not.exist(err);
+                  res.body.should.eql('Hello, Scott!');
+                  done();
+              });
+        });
+    });
 });
