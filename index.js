@@ -282,7 +282,7 @@ function createPipes(self) {
         validateReponse: true
       },
       swagger_controllers: [
-        'cors',
+        '_cors',
         'swagger_params_parser',
         'swagger_security',
         '_swagger_validate',
