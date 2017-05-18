@@ -130,9 +130,9 @@ module.exports = function() {
     it('should not get a 204 for known path and undeclared options operation', function(done) {
       request(this.app)
         .options('/hello')
-        .expect(204)
         .end(function(err, res) {
           should.not.exist(err);
+          res.status.should.be.oneOf(200,204)
           done();
         });
     });
