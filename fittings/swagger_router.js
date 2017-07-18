@@ -99,9 +99,13 @@ module.exports = function create(fittingDef, bagpipes) {
         }
         
         debug('running controller, as %s', operation.controllerInterface);
-        return operation.controllerInterface == 'pipe'
+        var resolvedFunction = operation.controllerInterface == 'pipe'
           ? controllerFunction(context, cb)
           : controllerFunction(context.request, context.response, cb);
+          
+        if (resolvedFunction instanceof Promise) resolvedFunction.catch(cb);
+        
+        return resolvedFunction;
       }
 
       var msg = util.format('Controller %s doesn\'t export handler function %s', controllerName, operationId);
