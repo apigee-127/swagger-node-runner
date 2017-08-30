@@ -375,6 +375,30 @@ describe('index', function() {
           });
       });
     });
+    
+    it('should accept null body from pipe interface', function(done) {
+      var config = _.clone(DEFAULT_PROJECT_CONFIG);
+      config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_auto");
+
+      SwaggerRunner.create(config, function(err, runner) {
+        if (err) { return done(err); }
+        runner.config.swagger.bagpipes.should.have.property('swagger_controllers');
+
+        var app = require('connect')();
+        runner.connectMiddleware().register(app);
+
+        var request = require('supertest');
+
+        request(app)
+          .get('/controller_interface_pipe_operation_with_no_body')
+          .set('Accept', 'application/json')
+          .expect(200)
+          .end(function(err, res) {
+            should.not.exist(err, err && err.stack);
+            done();
+          });
+      });
+    });
 
 
     it('should fail without callback', function() {

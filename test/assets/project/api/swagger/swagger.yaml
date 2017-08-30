@@ -354,6 +354,19 @@ paths:
         200: 
           description: Whatever
           schema: {}
+  /controller_interface_pipe_operation_with_no_body:
+    x-swagger-router-controller: overrides_ctrl_interface_pipe
+    get:
+      x-controller-interface: pipe
+      operationId: pipeInterfaceNoBody
+      responses:
+        200:
+          description: Success
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"         
+
 definitions:
   HelloWorldResponse:
     type: object
