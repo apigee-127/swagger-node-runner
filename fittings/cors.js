@@ -8,7 +8,7 @@ var CORS = require('cors');
 module.exports = function create(fittingDef, bagpipes) {
 
   debug('config: %j', fittingDef);
-  var middleware = CORS(fittingDef);
+  var middleware = CORS(fittingDef.input);
 
   return function cors(context, cb) {
     debug('exec');
