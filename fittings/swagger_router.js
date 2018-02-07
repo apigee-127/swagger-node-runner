@@ -59,7 +59,7 @@ module.exports = function create(fittingDef, bagpipes) {
       debug('controller in cache', controllerName);
       controller = controllerFunctionsCache[controllerName];
 
-    } else {
+    } else if (controllerName) {
 
       debug('loading controller %s from fs: %s', controllerName, controllersDirs);
       for (var i = 0; i < controllersDirs.length; i++) {
