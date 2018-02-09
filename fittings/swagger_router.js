@@ -123,7 +123,8 @@ module.exports = function create(fittingDef, bagpipes) {
       if (mock) {
         debug('returning mock example value', mock);
       } else {
-        mock = operation.getResponse(statusCode).getSample();
+        var operationResponse = operation.getResponse(statusCode) || operation.getResponse('default');
+        mock = operationResponse.getSample();
         debug('returning mock sample value', mock);
       }
 
