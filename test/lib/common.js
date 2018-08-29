@@ -204,8 +204,9 @@ module.exports = function() {
 
     it('should reject when invalid content', function(done) {
       request(this.app)
-        .put('/expect_integer')
-        .set('Content-Type', 'text/plain')
+        .get('/hello_body')
+        .send('name=Scott')
+        .set('Content-Type', 'yolo/swag')
         .expect(400)
         .expect('Content-Type', /json/)
         .end(function(err, res) {
@@ -214,7 +215,7 @@ module.exports = function() {
           res.body.errors.should.be.an.Array;
           res.body.errors[0].should.have.properties({
             code: 'INVALID_CONTENT_TYPE',
-            message: 'Invalid Content-Type (text/plain).  These are supported: application/json'
+            message: 'Invalid Content-Type (yolo/swag).  These are supported: application/json, text/plain, multipart/form-data, application/x-www-form-urlencoded'
           });
           done();
         });
