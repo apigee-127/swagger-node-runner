@@ -1,6 +1,6 @@
 # Middleware for Swagger projects
 
-[![Build Status](https://travis-ci.org/theganyo/swagger-node-runner.svg?branch=master)](https://travis-ci.org/swagger-api/swagger-node-runner)
+[![Build Status](https://travis-ci.org/theganyo/swagger-node-runner.svg?branch=master)](https://travis-ci.org/apigee-127/swagger-node-runner)
 
 [![Coverage Status](https://coveralls.io/repos/theganyo/swagger-node-runner/badge.svg?branch=sway&service=github)](https://coveralls.io/github/theganyo/swagger-node-runner)
 
