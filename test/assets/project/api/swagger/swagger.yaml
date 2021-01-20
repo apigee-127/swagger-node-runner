@@ -8,6 +8,9 @@ schemes:
   - http
 consumes:
   - application/json
+  - text/plain
+  - multipart/form-data
+  - application/x-www-form-urlencoded
 produces:
   - application/json
 paths:
