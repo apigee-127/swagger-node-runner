@@ -14,7 +14,7 @@ var MOCK_CONFIG = {
   bagpipes: {_router: {mockMode: true}}
 };
 
-describe('connect_middleware', function() {
+describe.skip('connect_middleware', function() {
 
   describe('standard', function() {
 
