@@ -1,7 +1,5 @@
 # Middleware for Swagger projects
 
-[![Build Status](https://travis-ci.org/theganyo/swagger-node-runner.svg?branch=master)](https://travis-ci.org/swagger-api/swagger-node-runner)
-
 [![Coverage Status](https://coveralls.io/repos/theganyo/swagger-node-runner/badge.svg?branch=sway&service=github)](https://coveralls.io/github/theganyo/swagger-node-runner)
 
 This is the middleware engine used by the [Swagger](https://www.npmjs.com/package/swagger) project. It is designed to handle all your Swagger-driven API project needs with minimal fuss - and maximal flexibility.
