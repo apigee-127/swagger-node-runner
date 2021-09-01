@@ -26,6 +26,12 @@ module.exports = {
   create: create
 };
 
+/*
+ Some fittings utilize 'async'.  This breaks continual-local-storage (cls) if being used.
+ Require cls before async to preserve the callbacks
+ */
+var cls = require('continuation-local-storage');
+
 var _ = require('lodash');
 var yaml = require('js-yaml');
 var path = require('path');
