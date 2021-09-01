@@ -23,6 +23,58 @@ module.exports = function() {
         });
     });
 
+    it('should execute with a default name', function(done) {
+      request(this.app)
+        .get('/hello_w_default')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+          res.body.should.eql('Hello, no stranger!');
+          done();
+        });
+    });
+
+    it('should execute and ignore default name if name is provided', function(done) {
+      request(this.app)
+        .get('/hello_w_default?name=Peter')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+          res.body.should.eql('Hello, Peter!');
+          done();
+        });
+    });
+
+    it('default names should be replaced with new parameter if supplied', function(done) {
+      request(this.app)
+        .get('/hello_w_default_array?names[]=Tom&names[]=Peter')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+          res.body.should.eql('Hello, Tom and Peter');
+          done();
+        });
+      });
+
+    it('should execute with default names', function(done) {
+      request(this.app)
+        .get('/hello_w_default_array')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end(function(err, res) {
+          should.not.exist(err);
+          res.body.should.eql('Hello, Tom and Maria');
+          done();
+        });
+    });
+
     it('should execute without operationId', function(done) {
       request(this.app)
         .get('/hello_no_operationid')

@@ -38,6 +38,61 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /hello_w_default:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          default: "no stranger"
+          type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            type: object
+            $ref: "#/definitions/HelloWorldResponse"
+          examples:
+            application/json:
+              message: 'An example message'
+            application/x-yaml:
+              message: 'A yaml example'
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /hello_w_default_array:
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      operationId: hello_array
+      parameters:
+        - name: names
+          in: query
+          description: The names of the people to whom to say hello
+          default: ["Tom", "Maria"]
+          type: array
+          items:
+            type: string
+          collectionFormat: csv
+      responses:
+        200:
+          description: Success
+          schema:
+            type: object
+            $ref: "#/definitions/HelloWorldResponse"
+          examples:
+            application/json:
+              message: 'An example message'
+            application/x-yaml:
+              message: 'A yaml example'
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
   /multiple_writes:
     x-swagger-router-controller: hello_world
     get:

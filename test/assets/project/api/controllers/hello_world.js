@@ -4,6 +4,7 @@ var util = require('util');
 
 module.exports = {
   hello: hello,
+  hello_array: hello_array,
   hello_body: hello_body,
   hello_file: hello_file,
   get: hello,
@@ -14,6 +15,22 @@ module.exports = {
 function hello(req, res) {
   var name = req.swagger.params.name.value || 'stranger';
   var hello = util.format('Hello, %s!', name);
+  res.json(hello);
+}
+
+function hello_array(req, res) {
+  var hello = 'Hello';
+  var names = req.swagger.params.names.value
+  for (let n =0; n < names.length; n ++) {
+    if (names.hasOwnProperty(n)) {
+      if ((n + 1) === names.length){
+        hello += " and "
+      }else {
+        hello += ", "
+      }
+      hello += names[n]
+    }
+  }
   res.json(hello);
 }
 
