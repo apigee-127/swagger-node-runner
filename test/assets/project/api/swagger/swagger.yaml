@@ -8,6 +8,9 @@ schemes:
   - http
 consumes:
   - application/json
+  - text/plain
+  - multipart/form-data
+  - application/x-www-form-urlencoded
 produces:
   - application/json
 paths:
@@ -321,8 +324,8 @@ paths:
     get:
       description: well, what do you know...
       operationId: pipeInterface
-      responses: 
-        200: 
+      responses:
+        200:
           description: Whatever
           schema: {}
   /controller_interface_auto_detected_as_middleware:
@@ -331,27 +334,27 @@ paths:
     get:
       description: well, what do you know...
       operationId: middlewareInterface
-      responses: 
-        200: 
+      responses:
+        200:
           description: Whatever
           schema: {}
   /controller_interface_on_path_cascades:
     x-swagger-router-controller: overrides_ctrl_interface_pipe
     x-controller-interface: pipe
-    get: 
+    get:
       operationId: pipeInterface
-      responses: 
-        200: 
+      responses:
+        200:
           description: Whatever
           schema: {}
   /controller_interface_on_operation_cascades:
     x-swagger-router-controller: overrides_ctrl_interface_pipe
     x-controller-interface: pipe
-    get: 
+    get:
       x-controller-interface: middleware
       operationId: middlewareInterface
-      responses: 
-        200: 
+      responses:
+        200:
           description: Whatever
           schema: {}
   /controller_interface_pipe_operation_with_no_body:
@@ -365,7 +368,7 @@ paths:
         default:
           description: Error
           schema:
-            $ref: "#/definitions/ErrorResponse"         
+            $ref: "#/definitions/ErrorResponse"
 
 definitions:
   HelloWorldResponse:

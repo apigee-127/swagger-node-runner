@@ -1,6 +1,6 @@
 {
   "name": "swagger-node-runner",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "Swagger loader and middleware utilities",
   "keywords": [
     "swagger",
@@ -31,7 +31,7 @@
     "multer": "^1.0.6",
     "parseurl": "^1.3.0",
     "qs": "^6.4.0",
-    "sway": "^1.0.0",
+    "sway": "^2.0.0",
     "type-is": "^1.6.9"
   },
   "devDependencies": {
