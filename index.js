@@ -218,7 +218,9 @@ function Runner(appJsConfig, cb) {
       if (warnings && warnings.length > 0) {
         var warningText = JSON.stringify(warnings);
         if (self.config.swagger.startWithWarnings) {
-          console.error(warningText, 2);
+          if(!self.config.swagger.suppressWarnings) {
+            console.error(warningText, 2);
+		  }
         } else {
           var err = new Error('Swagger validation warnings:');
           err.validationWarnings = warnings;
@@ -245,7 +247,7 @@ function Runner(appJsConfig, cb) {
           console.error("\t#" + i + ".: " + err.validationErrors[i].message + " in swagger config at: >" + err.validationErrors[i].path.join('/') + "<");
         }
       }
-      
+
       process.nextTick(function() { throw err; });
     })
 }

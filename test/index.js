@@ -4,6 +4,7 @@ var should = require('should');
 var path = require('path');
 var _ = require('lodash');
 var util = require('util');
+var sinon = require('sinon');
 
 var SwaggerRunner = require('..');
 
@@ -375,7 +376,7 @@ describe('index', function() {
           });
       });
     });
-    
+
     it('should accept null body from pipe interface', function(done) {
       var config = _.clone(DEFAULT_PROJECT_CONFIG);
       config.configDir = path.resolve(DEFAULT_PROJECT_ROOT, "config_auto");
@@ -399,7 +400,6 @@ describe('index', function() {
           });
       });
     });
-
 
     it('should fail without callback', function() {
       (function() { SwaggerRunner.create(DEFAULT_PROJECT_CONFIG) }).should.throw('callback is required');
@@ -445,11 +445,29 @@ describe('index', function() {
 
   it('should continue with swagger warnings if startWithWarnings is true', function(done) {
     var config = _.clone(DEFAULT_PROJECT_CONFIG);
+    sinon.spy(console, 'error');
     config.startWithWarnings = true;
     config.swagger = SWAGGER_WITH_WARNINGS;
     SwaggerRunner.create(config, function(err, runner) {
       should.not.exist(err);
+      console.error.calledOnce.should.be.true();
+      console.error.calledWith('[{"code":"UNUSED_DEFINITION","message":"Definition is not used: #/definitions/SomeUnusedDefinition","path":["definitions","SomeUnusedDefinition"]}]').should.be.true();
+      console.error.restore();
       done();
+    });
+  });
+
+  it('should continue with swagger warnings and not show error in console if startWithWarnings is true and suppressWarnings is true', function(done) {
+    var config = _.clone(DEFAULT_PROJECT_CONFIG);
+    sinon.spy(console, 'error');
+    config.startWithWarnings = true;
+    config.suppressWarnings = true;
+    config.swagger = SWAGGER_WITH_WARNINGS;
+    SwaggerRunner.create(config, function(err, runner) {
+        should.not.exist(err);
+        console.error.notCalled.should.be.true();
+		console.error.restore();
+        done();
     });
   });
 
