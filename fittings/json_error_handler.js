@@ -29,7 +29,6 @@ module.exports = function create(fittingDef, bagpipes) {
     }
 
     try {
-      //TODO: find what's throwing here...
       if (context.statusCode === 500 && !fittingDef.handle500Errors) { return next(err); }
       //else - from here we commit to emitting error as JSON, no matter what.
 
@@ -38,7 +37,8 @@ module.exports = function create(fittingDef, bagpipes) {
       if (fittingDef.includeErrStack)
           Object.defineProperty(err, 'stack', { enumerable: true }); // include stack property in response
 
-      delete(context.error);
+      //context.error = new Error(null);
+
       next(null, JSON.stringify(err));
     } catch (err2) {
       log = context.request && ( 
