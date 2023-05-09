@@ -20,7 +20,7 @@
     "url": "https://github.com/theganyo/swagger-node-runner.git"
   },
   "dependencies": {
-    "async": "^1.5.0",
+    "async": "^3.2.4",
     "bagpipes": "^0.1.0",
     "body-parser": "^1.14.1",
     "config": "^1.16.0",
