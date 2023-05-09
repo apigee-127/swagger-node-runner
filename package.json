@@ -35,7 +35,7 @@
     "type-is": "^1.6.18"
   },
   "devDependencies": {
-    "connect": "^3.4.0",
+    "connect": "^3.7.0",
     "coveralls": "^2.11.4",
     "express": "^4.13.3",
     "hapi": "^10.0.0",
