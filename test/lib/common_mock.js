@@ -37,7 +37,7 @@ module.exports = function() {
   it('should return example if exists based on accept header', function(done) {
 
     var YAML = require('js-yaml');
-    var msg = YAML.safeDump({ message: 'A yaml example' }, { indent: 2 });
+    var msg = YAML.dump({ message: 'A yaml example' }, { indent: 2 });
 
     request(this.app)
       .get('/hello')

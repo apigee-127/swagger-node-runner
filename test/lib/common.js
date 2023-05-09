@@ -356,7 +356,7 @@ module.exports = function() {
           .expect('Content-Type', /yaml/)
           .end(function(err, res) {
             should.not.exist(err);
-            var swagger = yaml.safeLoad(res.text);
+            var swagger = yaml.load(res.text);
             swagger.swagger.should.eql('2.0');
             done();
           });
