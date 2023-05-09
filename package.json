@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "connect": "^3.7.0",
-    "coveralls": "^2.11.4",
+    "coveralls": "^3.1.1",
     "express": "^4.13.3",
     "hapi": "^10.0.0",
     "istanbul": "^0.4.0",
