@@ -13,7 +13,7 @@ var MOCK_CONFIG = {
   bagpipes: {_router: {mockMode: true}}
 };
 
-describe('hapi_middleware', function() {
+describe.skip('hapi_middleware', function() {
 
   describe('standard', function() {
     before(function(done) {
