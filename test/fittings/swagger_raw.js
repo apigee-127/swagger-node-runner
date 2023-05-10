@@ -14,13 +14,13 @@ describe('swagger_raw', function() {
 
   before(function() {
     var data = fs.readFileSync(path.resolve(__dirname, '../assets/project/api/swagger/swagger.yaml'), 'utf8');
-    swagger = YAML.safeLoad(data);
+    swagger = YAML.load(data);
 
     var bagpipes = { config: { swaggerNodeRunner: { swagger: swagger }}};
     swaggerDoc = swagger_raw({}, bagpipes);
 
     var filteredSwagger = filterDoc(swagger);
-    yaml = YAML.safeDump(filteredSwagger, { indent: 2 });
+    yaml = YAML.dump(filteredSwagger, { indent: 2 });
     json = JSON.stringify(filteredSwagger, null, 2);
   });
 
@@ -81,7 +81,7 @@ describe('swagger_raw', function() {
       var filteredSwagger = _.cloneDeep(swagger);
       delete(filteredSwagger.paths['/invalid_header']);
       should.exist(filteredSwagger.paths['/invalid_response_code'].get)
-      var yaml = YAML.safeDump(filteredSwagger, { indent: 2 });
+      var yaml = YAML.dump(filteredSwagger, { indent: 2 });
 
       output.should.eql(yaml);
       done();
@@ -112,7 +112,7 @@ describe('swagger_raw', function() {
       var filteredSwagger = _.cloneDeep(swagger);
       delete(filteredSwagger.paths['/invalid_header']);
       delete(filteredSwagger.paths['/invalid_response_code'].get);
-      var yaml = YAML.safeDump(filteredSwagger, { indent: 2 });
+      var yaml = YAML.dump(filteredSwagger, { indent: 2 });
 
       output.should.eql(yaml);
       done();
@@ -128,10 +128,10 @@ describe('swagger_raw', function() {
       //brings the size of the doc to
       // yaml -  125425
       // json -  120868
-      var swagger = inflateDocWithAVeryBigTypeDefinition(YAML.safeLoad(data));
+      var swagger = inflateDocWithAVeryBigTypeDefinition(YAML.load(data));
       
       filteredSwagger = filterDoc(swagger);
-      yaml = YAML.safeDump(filteredSwagger, { indent: 2 });
+      yaml = YAML.dump(filteredSwagger, { indent: 2 });
       
       app = createServer(swagger, done)
     });

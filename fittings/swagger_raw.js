@@ -25,7 +25,7 @@ module.exports = function create(fittingDef, bagpipes) {
   if (!filteredSwagger) { return next(null, ''); }
 
   // should this just be based on accept type?
-  var yaml = YAML.safeDump(filteredSwagger, { indent: 2 });
+  var yaml = YAML.dump(filteredSwagger, { indent: 2 });
   var json = JSON.stringify(filteredSwagger, null, 2);
 
   return function swagger_raw(context, next) {
@@ -47,7 +47,7 @@ module.exports = function create(fittingDef, bagpipes) {
 
 function filterKeysRecursive(object, dropTagRegex, privateTags) {
   if (_.isPlainObject(object)) {
-    if (_.any(privateTags, function(tag) { return object[tag]; })) {
+    if (_.some(privateTags, function(tag) { return object[tag]; })) {
       object = undefined;
     } else {
       var result = {};
