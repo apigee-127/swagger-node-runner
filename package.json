@@ -33,7 +33,7 @@
     "npm": "^9.6.6",
     "parseurl": "^1.3.3",
     "qs": "^6.11.1",
-    "sway": "git+https://git@github.com/autodesk-forks/sway.git",
+    "sway": "github:autodesk-forks/sway#147f404d1eccb85d8ee5d248e9d85c77bbe1e12b",
     "type-is": "^1.6.18"
   },
   "devDependencies": {
