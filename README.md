@@ -1,17 +1,55 @@
-# Middleware for Swagger projects
+# autodesk-forks-swagger-node-runner
 
-[![Coverage Status](https://coveralls.io/repos/theganyo/swagger-node-runner/badge.svg?branch=sway&service=github)](https://coveralls.io/github/theganyo/swagger-node-runner)
+This package is a fork of [apigee-127/swagger-node-runner](https://github.com/apigee-127/swagger-node-runner). 
+The purpose of this fork is to update dependencies and continue to maintain the original package.
 
-This is the middleware engine used by the [Swagger](https://www.npmjs.com/package/swagger) project. It is designed to handle all your Swagger-driven API project needs with minimal fuss - and maximal flexibility.
+Would you like to contribute? Read [our contribution guidelines](./CONTRIBUTING.md).
 
-### Important upgrade note!
+[![License](http://img.shields.io/npm/lgger-node-runner.svg)](https://github.com/autodesk-forks/swagger-node-runner/blob/master/LICENSE)
+[![NodeJS with Gulp](https://github.com/autodesk-forks/swagger-node-runner/actions/workflows/npm-gulp.yml/badge.svg)](https://github.com/autodesk-forks/swagger-node-runner/actions/workflows/npm-gulp.yml)
+![semver](https://img.shields.io/badge/semver-2.0.0-blue)
+[![npm version](https://badgen.net/npm/v/autodesk-forks-swagger-node-runner)](https://www.npmjs.com/package/autodesk-forks-swagger-node-runner)
+[![contributors](https://img.shields.io/github/contributors/autodesk-forks/swagger-node-runner)](https://github.com/autodesk-forks/swagger-node-runner/graphs/contributors)
 
-If you're upgrading a swagger-node generated project, you must follow the upgrade instructions in the [release notes](https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.0) for the upgrade to succeed.
+## :book: Resources
 
-Also, be sure to read the following release notes for more information on other changes and enhancements:
+- [Documentation](./docs/API.md)
+- [Typescript definitions](./index.d.ts)
+- [Changelog](https://github.com/autodesk-forks/swagger-node-runner/releases)
 
-https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.4  
-https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.10  
-https://github.com/theganyo/swagger-node-runner/releases/tag/v0.6.11  
-https://github.com/theganyo/swagger-node-runner/releases/tag/v0.7.0  
-https://github.com/theganyo/swagger-node-runner/releases/tag/v0.7.1
+## Getting started
+
+You can install this fork via npm:
+```bash
+npm i autodesk-forks-swagger-node-runner
+```
+
+Sample usage with express server:
+```javascript
+const SwaggerRunner = require("swagger-node-runner");
+const request = require("supertest");
+const express = require('express')();
+const axios = require('axios');
+
+SwaggerRunner.create({
+    appRoot: './test/assets/project'
+}, async (err, runner) => {
+    if (err) console.error(err);
+
+    runner.expressMiddleware().register(express);
+
+    const {statusCode: goodRequest} = await request(express)
+        .put('/expect_integer')
+        .query({
+            name: 123123,
+        });
+    console.log(goodRequest); // will output 200
+
+    const {statusCode: badRequest} = await request(express)
+        .put('/expect_integer')
+        .query({
+            name: 'string',
+        });
+    console.log(badRequest); // will output 400
+})
+```
