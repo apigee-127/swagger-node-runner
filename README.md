@@ -5,7 +5,7 @@ The purpose of this fork is to update dependencies and continue to maintain the 
 
 Would you like to contribute? Read [our contribution guidelines](./CONTRIBUTING.md).
 
-[![License](http://img.shields.io/npm/lgger-node-runner.svg)](https://github.com/autodesk-forks/swagger-node-runner/blob/master/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![NodeJS with Gulp](https://github.com/autodesk-forks/swagger-node-runner/actions/workflows/npm-gulp.yml/badge.svg)](https://github.com/autodesk-forks/swagger-node-runner/actions/workflows/npm-gulp.yml)
 ![semver](https://img.shields.io/badge/semver-2.0.0-blue)
 [![npm version](https://badgen.net/npm/v/autodesk-forks-swagger-node-runner)](https://www.npmjs.com/package/autodesk-forks-swagger-node-runner)
