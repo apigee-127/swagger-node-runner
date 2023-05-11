@@ -1,6 +1,6 @@
 {
   "name": "autodesk-forks-swagger-node-runner",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Forked Swagger loader and middleware utilities",
   "keywords": [
     "swagger",
@@ -48,7 +48,7 @@
     "npm": "^9.6.6",
     "parseurl": "^1.3.3",
     "qs": "^6.11.1",
-    "sway": "github:autodesk-forks/sway#147f404d1eccb85d8ee5d248e9d85c77bbe1e12b",
+    "autodesk-forks-sway": "2.1.0",
     "type-is": "^1.6.18"
   },
   "devDependencies": {

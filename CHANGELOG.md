@@ -15,6 +15,13 @@ straightforward as possible.
 
 ### Fixed
 
+## [0.8.1] - 2023-05-11
+
+### Changed
+
+- [docs: package info + docs update](https://github.com/autodesk-forks/swagger-node-runner/pull/5):
+  docs updated + using npm sway module
+
 ## [0.8.0] - 2023-05-11
 
 ### Breaking
