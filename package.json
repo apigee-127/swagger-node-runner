@@ -1,7 +1,7 @@
 {
-  "name": "swagger-node-runner",
-  "version": "0.7.3",
-  "description": "Swagger loader and middleware utilities",
+  "name": "autodesk-forks-swagger-node-runner",
+  "version": "0.8.0",
+  "description": "Forked Swagger loader and middleware utilities",
   "keywords": [
     "swagger",
     "api",
@@ -12,13 +12,28 @@
     "swagger-hapi",
     "swagger-sails"
   ],
-  "author": "Scott Ganyo <sganyo@apigee.com>",
+  "maintainers": [
+    {
+      "name": "Scott Ganyo",
+      "email": "sganyo@apigee.com",
+      "url": "https://github.com/theganyo"
+    },
+    {
+      "name": "Daniel Golub",
+      "email": "danielg6666@gmail.com",
+      "url": "https://github.com/danielgolub"
+    }
+  ],
   "license": "MIT",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/theganyo/swagger-node-runner.git"
+    "url": "https://github.com/autodesk-forks/swagger-node-runner.git"
   },
+  "bugs": {
+    "url": "https://github.com/autodesk-forks/swagger-node-runner/issues"
+  },
+  "homepage": "https://github.com/autodesk-forks/swagger-node-runner",
   "dependencies": {
     "async": "^3.2.4",
     "bagpipes": "^0.2.2",
